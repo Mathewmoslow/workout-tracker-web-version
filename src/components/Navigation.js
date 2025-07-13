@@ -1,36 +1,35 @@
-import React from 'react';
-import * as Icons from 'lucide-react';
+// src/components/Navigation.js
+import React from "react";
+import { Calendar, Users, Dumbbell, History, Database } from "lucide-react";
 
 const Navigation = ({ activeView, setActiveView }) => {
   const navItems = [
-    { id: 'calendar', label: 'Calendar', icon: Icons.Calendar },
-    { id: 'clients', label: 'Clients', icon: Icons.Users },
-    { id: 'workouts', label: 'Workouts', icon: Icons.Dumbbell },
-    { id: 'history', label: 'History', icon: Icons.History },
+    { id: "calendar", label: "Calendar", icon: Calendar },
+    { id: "clients", label: "Clients", icon: Users },
+    { id: "workouts", label: "Workouts", icon: Dumbbell },
+    { id: "exercise-db", label: "Exercise DB", icon: Database },
+    { id: "history", label: "History", icon: History },
   ];
 
   return (
     <nav className="nav">
       <div className="nav-content">
-        <h1>💪 Workout Tracker Pro</h1>
+        <img
+          src="logos/logo-horizontal.png"
+          alt="Workout Tracker Pro"
+          className="nav-logo"
+        />
         <div className="nav-links">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activeView === item.id || 
-              (activeView === 'client-detail' && item.id === 'clients') || 
-              (activeView === 'session' && item.id === 'calendar');
-              
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={isActive ? 'active' : ''}
-              >
-                <Icon size={16} />
-                {item.label}
-              </button>
-            );
-          })}
+          {navItems.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              className={activeView === id ? "active" : ""}
+              onClick={() => setActiveView(id)}
+            >
+              <Icon size={16} style={{ marginRight: "6px" }} />
+              {label}
+            </button>
+          ))}
         </div>
       </div>
     </nav>

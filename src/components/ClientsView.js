@@ -1,7 +1,16 @@
+// src/components/ClientsView.js - Fixed version
 import React, { useState } from 'react';
 import { Plus, Eye, Edit, Trash2, X } from 'lucide-react';
 
-const ClientsView = ({ clients, setClients, showModal, setShowModal, onViewClient }) => {
+const ClientsView = ({ 
+  clients, 
+  setClients, 
+  showModal, 
+  setShowModal, 
+  onViewClient, 
+  onEditClient, 
+  useEnhancedModal 
+}) => {
   const [editingClient, setEditingClient] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -41,9 +50,15 @@ const ClientsView = ({ clients, setClients, showModal, setShowModal, onViewClien
   };
 
   const handleEdit = (client) => {
-    setEditingClient(client);
-    setFormData(client);
-    setShowModal(true);
+    if (useEnhancedModal && onEditClient) {
+      // Use enhanced modal through parent
+      onEditClient(client);
+    } else {
+      // Use built-in modal
+      setEditingClient(client);
+      setFormData(client);
+      setShowModal(true);
+    }
   };
 
   return (
@@ -88,7 +103,8 @@ const ClientsView = ({ clients, setClients, showModal, setShowModal, onViewClien
         ))}
       </div>
 
-      {showModal && (
+      {/* Only show built-in modal if not using enhanced version */}
+      {showModal && !useEnhancedModal && (
         <div className="modal-overlay" onClick={resetForm}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
@@ -99,58 +115,45 @@ const ClientsView = ({ clients, setClients, showModal, setShowModal, onViewClien
             </div>
 
             <div className="form-grid">
-              <div>
-                <label>Name *</label>
+              <label>
+                Name *
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
-              </div>
+              </label>
               
-              <div>
-                <label>Email</label>
+              <label>
+                Email
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-              </div>
+              </label>
               
-              <div>
-                <label>Phone</label>
+              <label>
+                Phone
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
-              </div>
+              </label>
               
-              <div>
-                <label>Birth Date</label>
+              <label>
+                Birth Date
                 <input
                   type="date"
                   value={formData.birthDate}
                   onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
                 />
-              </div>
+              </label>
               
-              <div>
-                <label>Gender</label>
-                <select
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                >
-                  <option value="">Select...</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              
-              <div>
-                <label>Experience Level</label>
+              <label>
+                Experience Level
                 <select
                   value={formData.experience}
                   onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
@@ -159,58 +162,58 @@ const ClientsView = ({ clients, setClients, showModal, setShowModal, onViewClien
                   <option value="intermediate">Intermediate</option>
                   <option value="advanced">Advanced</option>
                 </select>
-              </div>
+              </label>
               
-              <div>
-                <label>Height (cm)</label>
+              <label>
+                Height (cm)
                 <input
                   type="number"
                   value={formData.height}
                   onChange={(e) => setFormData({ ...formData, height: e.target.value })}
                 />
-              </div>
+              </label>
               
-              <div>
-                <label>Weight (kg)</label>
+              <label>
+                Weight (kg)
                 <input
                   type="number"
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                 />
-              </div>
+              </label>
+              
+              <label className="full-width">
+                Goals
+                <textarea
+                  rows="3"
+                  value={formData.goals}
+                  onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
+                  placeholder="What are the client's fitness goals?"
+                />
+              </label>
+              
+              <label className="full-width">
+                Injuries/Limitations
+                <textarea
+                  rows="3"
+                  value={formData.injuries}
+                  onChange={(e) => setFormData({ ...formData, injuries: e.target.value })}
+                  placeholder="Any injuries or physical limitations?"
+                />
+              </label>
+              
+              <label className="full-width">
+                Notes
+                <textarea
+                  rows="3"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Additional notes..."
+                />
+              </label>
             </div>
             
-            <div>
-              <label>Goals</label>
-              <textarea
-                value={formData.goals}
-                onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
-                rows={3}
-                placeholder="What are their fitness goals?"
-              />
-            </div>
-            
-            <div>
-              <label>Injuries/Limitations</label>
-              <textarea
-                value={formData.injuries}
-                onChange={(e) => setFormData({ ...formData, injuries: e.target.value })}
-                rows={2}
-                placeholder="Any injuries or physical limitations?"
-              />
-            </div>
-            
-            <div>
-              <label>Notes</label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                rows={3}
-                placeholder="Additional notes..."
-              />
-            </div>
-            
-            <div className="flex mt-20">
+            <div className="modal-footer">
               <button onClick={handleSubmit}>
                 {editingClient ? 'Update' : 'Add'} Client
               </button>

@@ -36,6 +36,11 @@ body {
   padding: 15px 0;
 }
 
+.nav-logo {
+  height: 40px; /* Adjust as needed */
+  width: auto;
+}
+
 .nav-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -806,4 +811,299 @@ tr:hover {
     font-size: 12px;
     grid-template-columns: 50px 60px 60px 60px 50px 50px 60px;
   }
+}
+/* Add these styles to your existing App.css */
+
+/* Enhanced Modal Styles */
+.modal-enhanced {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal.large {
+  max-width: 900px;
+}
+
+/* Tab Navigation */
+.tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Assessment Sections */
+.assessment-section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.section-header:hover {
+  background: #e8e8e8;
+}
+
+/* Enhanced Button Styles */
+button.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+button.text-btn {
+  background: none;
+  color: #007bff;
+  border: none;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button.text-btn:hover {
+  text-decoration: underline;
+}
+
+/* Session Cards */
+.session-card {
+  transition: all 0.2s;
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Workout Cards */
+.workout-card {
+  position: relative;
+  transition: all 0.2s;
+}
+
+.workout-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Exercise Selector */
+.exercise-item {
+  transition: all 0.2s;
+}
+
+.exercise-item:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+}
+
+/* Superset Styling */
+.superset-group {
+  background: #e3f2fd;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.superset-group::before {
+  content: 'SUPERSET';
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background: white;
+  padding: 0 10px;
+  color: #1976d2;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Enhanced Form Grid */
+.form-grid {
+  display: grid;
+  gap: 15px;
+}
+
+/* Progress Indicators */
+.progress-bar {
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+  transition: width 0.3s ease;
+}
+
+/* Rating Bars */
+.rating-bar {
+  width: 80px;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.rating-fill {
+  height: 100%;
+  background: #4caf50;
+}
+
+/* Action Menu Dropdown */
+.action-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 100;
+}
+
+.action-menu button {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.action-menu button:hover {
+  background: #f5f5f5;
+}
+
+.action-menu hr {
+  margin: 5px 0;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .modal-enhanced {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .session-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .workout-editor table {
+    font-size: 12px;
+  }
+  
+  .workout-editor input {
+    width: 50px !important;
+  }
+}
+
+/* Animations */
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Focus States */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Pill/Tag Styles */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tag.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.tag.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.tag.danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.empty-state h3 {
+  color: #999;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+/* Loading States */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
