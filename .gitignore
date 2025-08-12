@@ -30,3 +30,12 @@ yarn-error.log*
 # temp files
 *.log
 *.swp
+
+# data files
+src/data/exercises.json
+src/data/workouts.json
+megaGymDataset.csv
+*.csv
+
+# iOS app folder
+ios-app/
