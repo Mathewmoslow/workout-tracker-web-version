@@ -1,8 +1,10 @@
 // src/components/Navigation.js
-import React from "react";
-import { Calendar, Users, Dumbbell, History, Database } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, Users, Dumbbell, History, Database, Cloud } from "lucide-react";
+import BackupManager from "./BackupManager";
 
-const Navigation = ({ activeView, setActiveView, onLoadTrainerData }) => {
+const Navigation = ({ activeView, setActiveView }) => {
+  const [showBackupManager, setShowBackupManager] = useState(false);
   const navItems = [
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "clients", label: "Clients", icon: Users },
@@ -30,26 +32,21 @@ const Navigation = ({ activeView, setActiveView, onLoadTrainerData }) => {
               {label}
             </button>
           ))}
-          
-          {onLoadTrainerData && (
-            <button
-              className="trainer-data-btn"
-              onClick={onLoadTrainerData}
-              style={{ 
-                marginLeft: 'auto', 
-                backgroundColor: '#007bff', 
-                color: 'white',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              📋 Load Trainer Data
-            </button>
-          )}
+          <button
+            className="backup-btn"
+            onClick={() => setShowBackupManager(true)}
+            title="Backup & Sync"
+          >
+            <Cloud size={16} style={{ marginRight: "6px" }} />
+            Backup
+          </button>
         </div>
       </div>
+      
+      <BackupManager 
+        isOpen={showBackupManager} 
+        onClose={() => setShowBackupManager(false)} 
+      />
     </nav>
   );
 };

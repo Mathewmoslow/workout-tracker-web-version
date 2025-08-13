@@ -10,7 +10,7 @@ import WorkoutBuilder from './components/WorkoutBuilder';
 import SessionTracker from './components/SessionTracker';
 import exerciseDatabase from './data/exercises.json';
 import defaultWorkouts from './data/defaultWorkouts';
-import trainerData from './data/trainerDataImport';
+import { loadInitialData } from './data/dataLoader';
 
 // NEW: Import enhanced components
 import EnhancedClientModal from './components/EnhancedClientModal';
@@ -42,140 +42,66 @@ function App() {
   const [progressMetrics, setProgressMetrics] = useState([]);
   const [clientGoals, setClientGoals] = useState([]);
   
-  // Load data from localStorage with trainer data as defaults
+  // Load data from localStorage and initialize with common programs and sample clients
   useEffect(() => {
-    const savedClients = localStorage.getItem('workout_clients');
-    const savedSessions = localStorage.getItem('workout_sessions');
-    const savedHistory = localStorage.getItem('workout_history');
-    const savedWorkoutTemplates = localStorage.getItem('saved_workouts');
-    const savedTrainerNotes = localStorage.getItem('trainer_notes');
-    const savedMetrics = localStorage.getItem('progress_metrics');
-    const savedGoals = localStorage.getItem('client_goals');
+    // Load initial data (workout programs and sample clients) if needed
+    loadInitialData();
     
-    // Check if we should load trainer data (for fresh install or reset)
-    const hasTrainerData = savedClients && savedSessions && savedTrainerNotes;
+    // Load existing data from localStorage
+    const savedClients = localStorage.getItem('clients');
+    const savedSessions = localStorage.getItem('sessions');  
+    const savedHistory = localStorage.getItem('workoutHistory');
+    const savedWorkoutTemplates = localStorage.getItem('workouts');
+    const savedTrainerNotes = localStorage.getItem('trainerNotes');
+    const savedMetrics = localStorage.getItem('progressMetrics');
+    const savedGoals = localStorage.getItem('clientGoals');
     
-    // Load clients with trainer data as default
-    if (savedClients && hasTrainerData) {
-      const existing = JSON.parse(savedClients);
-      // Check if trainer client already exists
-      const hasTrainerClient = existing.some(c => c.id === 'CL001' || c.firstName === 'Lindsey');
-      if (!hasTrainerClient) {
-        // Add trainer client if missing
-        setClients([...existing, trainerData.trainerClient]);
-      } else {
-        setClients(existing);
-      }
-    } else {
-      // Initialize with trainer's client data
-      setClients([trainerData.trainerClient]);
-    }
-    
-    // Load sessions with trainer data as default
-    if (savedSessions && hasTrainerData) {
-      const existing = JSON.parse(savedSessions);
-      // Check if trainer sessions already exist
-      const hasTrainerSessions = existing.some(s => s.id === 'S001' || s.clientId === 'CL001');
-      if (!hasTrainerSessions) {
-        // Add trainer sessions if missing
-        setSessions([...existing, ...trainerData.trainerSessions]);
-      } else {
-        setSessions(existing);
-      }
-    } else {
-      // Initialize with trainer's session data
-      setSessions(trainerData.trainerSessions);
-    }
-    
+    if (savedClients) setClients(JSON.parse(savedClients));
+    if (savedSessions) setSessions(JSON.parse(savedSessions));
     if (savedHistory) setWorkoutHistory(JSON.parse(savedHistory));
+    
     if (savedWorkoutTemplates) {
       const parsed = JSON.parse(savedWorkoutTemplates);
-      // Merge with default workouts, keeping user workouts first
-      const userWorkoutIds = parsed.map(w => w.id);
-      const uniqueDefaults = defaultWorkouts.filter(d => !userWorkoutIds.includes(d.id));
-      setSavedWorkouts([...parsed, ...uniqueDefaults]);
+      setSavedWorkouts(parsed);
+    } else {
+      setSavedWorkouts(defaultWorkouts);
     }
     
-    // Load enhanced data with trainer defaults
-    if (savedTrainerNotes && hasTrainerData) {
-      const existing = JSON.parse(savedTrainerNotes);
-      const hasTrainerNotes = existing.some(n => n.clientId === 'CL001');
-      if (!hasTrainerNotes) {
-        setTrainerNotes([...existing, ...trainerData.trainerNotes]);
-      } else {
-        setTrainerNotes(existing);
-      }
-    } else {
-      setTrainerNotes(trainerData.trainerNotes);
-    }
-    
-    if (savedMetrics && hasTrainerData) {
-      const existing = JSON.parse(savedMetrics);
-      const hasTrainerMetrics = existing.some(m => m.clientId === 'CL001');
-      if (!hasTrainerMetrics) {
-        setProgressMetrics([...existing, ...trainerData.trainerMetrics]);
-      } else {
-        setProgressMetrics(existing);
-      }
-    } else {
-      setProgressMetrics(trainerData.trainerMetrics);
-    }
-    
-    if (savedGoals && hasTrainerData) {
-      const existing = JSON.parse(savedGoals);
-      const hasTrainerGoals = existing.some(g => g.clientId === 'CL001');
-      if (!hasTrainerGoals) {
-        setClientGoals([...existing, ...trainerData.trainerGoals]);
-      } else {
-        setClientGoals(existing);
-      }
-    } else {
-      setClientGoals(trainerData.trainerGoals);
-    }
+    if (savedTrainerNotes) setTrainerNotes(JSON.parse(savedTrainerNotes));
+    if (savedMetrics) setProgressMetrics(JSON.parse(savedMetrics));
+    if (savedGoals) setClientGoals(JSON.parse(savedGoals));
   }, []);
   
   // Save data to localStorage
   useEffect(() => {
-    localStorage.setItem('workout_clients', JSON.stringify(clients));
+    localStorage.setItem('clients', JSON.stringify(clients));
   }, [clients]);
   
   useEffect(() => {
-    localStorage.setItem('workout_sessions', JSON.stringify(sessions));
+    localStorage.setItem('sessions', JSON.stringify(sessions));
   }, [sessions]);
   
   useEffect(() => {
-    localStorage.setItem('workout_history', JSON.stringify(workoutHistory));
+    localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
   }, [workoutHistory]);
   
   useEffect(() => {
-    localStorage.setItem('saved_workouts', JSON.stringify(savedWorkouts));
+    localStorage.setItem('workouts', JSON.stringify(savedWorkouts));
   }, [savedWorkouts]);
   
   // Save enhanced data to localStorage
   useEffect(() => {
-    localStorage.setItem('trainer_notes', JSON.stringify(trainerNotes));
+    localStorage.setItem('trainerNotes', JSON.stringify(trainerNotes));
   }, [trainerNotes]);
   
   useEffect(() => {
-    localStorage.setItem('progress_metrics', JSON.stringify(progressMetrics));
+    localStorage.setItem('progressMetrics', JSON.stringify(progressMetrics));
   }, [progressMetrics]);
   
   useEffect(() => {
-    localStorage.setItem('client_goals', JSON.stringify(clientGoals));
+    localStorage.setItem('clientGoals', JSON.stringify(clientGoals));
   }, [clientGoals]);
   
-  // Function to reset and load trainer data
-  const loadTrainerData = () => {
-    if (window.confirm('This will replace current data with Lindsey\'s training history. Continue?')) {
-      setClients([trainerData.trainerClient]);
-      setSessions(trainerData.trainerSessions);
-      setTrainerNotes(trainerData.trainerNotes);
-      setProgressMetrics(trainerData.trainerMetrics);
-      setClientGoals(trainerData.trainerGoals);
-      setWorkoutHistory([]);
-      alert('Trainer data loaded! You should now see Lindsey as a client with training history.');
-    }
-  };
 
   // Enhanced handlers
   const handleSaveWorkout = (workout) => {
@@ -279,7 +205,6 @@ function App() {
         <Navigation 
           activeView={activeView} 
           setActiveView={setActiveView}
-          onLoadTrainerData={loadTrainerData}
         />
         
         <main className="main-content">

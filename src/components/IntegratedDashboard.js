@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Play, Plus, User, ChevronLeft, ChevronRight, Activity, Edit2 } from 'lucide-react';
+import { Calendar, Clock, Play, User, ChevronLeft, ChevronRight, Activity, Edit2 } from 'lucide-react';
 import './IntegratedDashboard.css';
 import { SessionTypes } from '../types/dataTypes';
 
@@ -214,13 +214,6 @@ const IntegratedDashboard = ({
         {/* Header */}
         <div className="dashboard-header">
           <h1>Session Manager</h1>
-          <button 
-            className="btn-primary"
-            onClick={() => setShowNewSessionForm(true)}
-          >
-            <Plus size={20} />
-            New Session
-          </button>
         </div>
 
         {/* Today's Sessions */}
@@ -338,6 +331,21 @@ const IntegratedDashboard = ({
                 <div className="client-name">{client.name}</div>
               </button>
             ))}
+          </div>
+          
+          {/* Create New Session Button */}
+          <div style={{ textAlign: 'center', marginTop: '32px' }}>
+            <button 
+              className="btn-primary"
+              onClick={() => setShowNewSessionForm(true)}
+              style={{ 
+                fontSize: '16px', 
+                padding: '12px 32px',
+                borderRadius: '8px'
+              }}
+            >
+              Create New Session
+            </button>
           </div>
         </div>
       </div>

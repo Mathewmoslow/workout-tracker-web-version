@@ -1,0 +1,95 @@
+/* Together Fitness Brand Color System */
+:root {
+  /* Primary Brand Colors from Logo */
+  --brand-sage-primary: #8FA68E;      /* Main sage green from logo */
+  --brand-sage-light: #A4B8A3;       /* Lighter sage green */
+  --brand-sage-dark: #7A957A;        /* Darker sage green */
+  --brand-sage-muted: #9BAA9A;       /* Muted sage green */
+  
+  --brand-coral-primary: #E89B8E;     /* Main coral/salmon pink from logo */
+  --brand-coral-light: #F2B5A9;      /* Lighter coral */
+  --brand-coral-dark: #DC7A6B;       /* Darker coral */
+  --brand-coral-muted: #E6A396;      /* Muted coral */
+  
+  /* Supporting Colors */
+  --brand-cream: #F8F6F4;            /* Light cream background */
+  --brand-white: #FFFFFF;            /* Pure white */
+  --brand-warm-white: #FEFEFE;       /* Slightly warm white */
+  
+  /* Text Colors */
+  --text-primary: #2F3E2F;           /* Dark sage for primary text */
+  --text-secondary: #4A5C4A;         /* Medium sage for secondary text */
+  --text-muted: #6B7B6B;             /* Light sage for muted text */
+  --text-light: #8A9A8A;             /* Very light sage for subtle text */
+  
+  /* Background Colors */
+  --bg-primary: var(--brand-cream);
+  --bg-secondary: var(--brand-white);
+  --bg-sage-subtle: #F4F6F4;         /* Very light sage background */
+  --bg-coral-subtle: #FDF9F8;        /* Very light coral background */
+  
+  /* Border Colors */
+  --border-light: #E5E8E5;           /* Light sage border */
+  --border-medium: #D0D6D0;          /* Medium sage border */
+  --border-sage: var(--brand-sage-light);
+  --border-coral: var(--brand-coral-light);
+  
+  /* Button States */
+  --btn-sage-base: var(--brand-sage-primary);
+  --btn-sage-hover: var(--brand-sage-dark);
+  --btn-sage-active: #6B856B;
+  --btn-sage-disabled: var(--brand-sage-muted);
+  
+  --btn-coral-base: var(--brand-coral-primary);
+  --btn-coral-hover: var(--brand-coral-dark);
+  --btn-coral-active: #D1665A;
+  --btn-coral-disabled: var(--brand-coral-muted);
+  
+  /* Status Colors (maintaining brand harmony) */
+  --success: var(--brand-sage-primary);
+  --success-light: var(--brand-sage-light);
+  --success-dark: var(--brand-sage-dark);
+  
+  --warning: #D4A574;                 /* Warm neutral */
+  --warning-light: #E2B98A;
+  --warning-dark: #C19660;
+  
+  --error: var(--brand-coral-primary);
+  --error-light: var(--brand-coral-light);
+  --error-dark: var(--brand-coral-dark);
+  
+  --info: #7A9BB3;                    /* Muted blue-gray */
+  --info-light: #93AFC4;
+  --info-dark: #6588A1;
+  
+  /* Shadows */
+  --shadow-light: 0 2px 4px rgba(47, 62, 47, 0.1);
+  --shadow-medium: 0 4px 8px rgba(47, 62, 47, 0.15);
+  --shadow-heavy: 0 8px 24px rgba(47, 62, 47, 0.2);
+  
+  /* Gradients */
+  --gradient-sage: linear-gradient(135deg, var(--brand-sage-light), var(--brand-sage-primary));
+  --gradient-coral: linear-gradient(135deg, var(--brand-coral-light), var(--brand-coral-primary));
+  --gradient-brand: linear-gradient(135deg, var(--brand-sage-primary), var(--brand-coral-primary));
+  --gradient-subtle: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+  
+  /* Animation Timings */
+  --transition-fast: 0.15s ease;
+  --transition-medium: 0.25s ease;
+  --transition-slow: 0.4s ease;
+  
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
