@@ -1,0 +1,22 @@
+WORKOUT TRACKER - WEB VERSION
+============================
+
+This is the Web/Browser version of the Workout Tracker application.
+
+Version: 2.0.0
+Platform: Web (React)
+Last Updated: 2025-08-12
+
+Features:
+- Client Management
+- Session Tracking
+- Workout Builder
+- Calendar View
+- Exercise Database
+- Session History
+
+To run:
+npm install
+npm start
+
+Access at: http://localhost:3000

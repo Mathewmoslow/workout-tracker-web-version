@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Play } from 'lucide-react';
+import './CalendarView.css';
 
 const CalendarView = ({ sessions, clients, selectedDate, setSelectedDate, onStartSession }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -52,29 +53,14 @@ const CalendarView = ({ sessions, clients, selectedDate, setSelectedDate, onStar
       
       const daySessions = getSessionsForDate(day);
       
-      // If there are sessions for this day, show them
+      // If there are sessions for this day, just select the date
+      // The parent component can handle showing session details
       if (daySessions.length > 0) {
-        // Could open a modal to show all sessions for this day
-        // For now, just select the date
         return;
       }
       
-      // Otherwise, trigger new session creation
-      if (clients.length === 0) {
-        alert('Please add a client first');
-        return;
-      }
-      
-      // Simple client selector
-      const clientNames = clients.map((c, i) => `${i + 1}. ${c.name}`).join('\n');
-      const selection = prompt(`Select client:\n${clientNames}`);
-      
-      if (selection) {
-        const clientIndex = parseInt(selection) - 1;
-        if (clientIndex >= 0 && clientIndex < clients.length) {
-          onStartSession(clients[clientIndex], day);
-        }
-      }
+      // For empty days, the parent can show a new session form
+      // No prompts needed - just update the selected date
     }
   };
 
@@ -137,130 +123,6 @@ const CalendarView = ({ sessions, clients, selectedDate, setSelectedDate, onStar
         })}
       </div>
 
-      <style jsx>{`
-        .calendar {
-          background: white;
-          border-radius: 8px;
-          padding: 20px;
-        }
-
-        .calendar-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-
-        .calendar-header h2 {
-          font-size: 20px;
-          font-weight: 600;
-        }
-
-        .calendar-header button {
-          background: none;
-          border: none;
-          padding: 8px;
-          cursor: pointer;
-          border-radius: 4px;
-          transition: background 0.2s;
-        }
-
-        .calendar-header button:hover {
-          background: #f0f0f0;
-        }
-
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 5px;
-        }
-
-        .calendar-day-header {
-          text-align: center;
-          font-weight: 600;
-          padding: 10px 0;
-          font-size: 14px;
-          color: #666;
-        }
-
-        .calendar-day {
-          min-height: 100px;
-          border: 1px solid #e0e0e0;
-          border-radius: 4px;
-          padding: 8px;
-          cursor: pointer;
-          transition: all 0.2s;
-          position: relative;
-        }
-
-        .calendar-day:hover:not(.empty) {
-          background-color: #f8f9fa;
-          border-color: #007bff;
-        }
-
-        .calendar-day.empty {
-          cursor: default;
-          background: #fafafa;
-        }
-
-        .calendar-day.selected {
-          background-color: #e3f2fd;
-          border-color: #007bff;
-        }
-
-        .calendar-day.today {
-          background-color: #fff8dc;
-        }
-
-        .calendar-day.has-session {
-          border-color: #28a745;
-          border-width: 2px;
-        }
-
-        .day-number {
-          font-weight: 600;
-          margin-bottom: 5px;
-        }
-
-        .session-list {
-          font-size: 11px;
-        }
-
-        .session-indicator {
-          background: #e3f2fd;
-          padding: 2px 4px;
-          border-radius: 3px;
-          margin-bottom: 2px;
-          position: relative;
-        }
-
-        .session-time {
-          font-weight: 600;
-          color: #1976d2;
-        }
-
-        .session-client {
-          color: #666;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .completed-badge {
-          position: absolute;
-          top: 2px;
-          right: 2px;
-          color: #28a745;
-          font-weight: bold;
-        }
-
-        .more-sessions {
-          color: #666;
-          font-style: italic;
-          text-align: center;
-          margin-top: 2px;
-        }
-      `}</style>
     </div>
   );
 };

@@ -37,5 +37,8 @@ src/data/workouts.json
 megaGymDataset.csv
 *.csv
 
-# iOS app folder
-ios-app/
+# iOS app folder (removed)
+# ios-app/
+
+# Backup files
+*.tar.gz

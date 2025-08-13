@@ -1,5 +1,7 @@
 // src/components/SessionViewEnhanced.js
 import React, { useState, useEffect } from 'react';
+import './SessionViewEnhanced.css';
+import { SessionTypes, WeightUnits } from '../types/dataTypes';
 
 const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
   const [sessionData, setSessionData] = useState({
@@ -8,6 +10,9 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
     notes: '',
     overallFeedback: '',
     clientMood: '',
+    sessionType: session?.sessionType || SessionTypes.FULL_BODY,
+    focusArea: session?.focusArea || '',
+    lateMinutes: session?.lateMinutes || 0,
     completed: false
   });
 
@@ -32,6 +37,10 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
               actualWeight: set.weight,
               actualRest: set.rest,
               actualEffort: set.effort,
+              weightUnit: set.weightUnit || WeightUnits.POUNDS,
+              tempo: set.tempo || '',
+              equipmentNotes: set.equipmentNotes || '',
+              formNotes: set.formNotes || '',
               completed: false,
               notes: ''
             })),
@@ -143,6 +152,21 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
 
   const moodOptions = ['😄 Great', '🙂 Good', '😐 Okay', '😕 Tired', '😣 Struggling'];
 
+  if (!sessionData.exercises || sessionData.exercises.length === 0) {
+    return (
+      <div className="session-view">
+        <div className="empty-session">
+          <h2>No Exercises in Session</h2>
+          <p>This session doesn't have any exercises assigned.</p>
+          <p>Client: {client?.name || 'Unknown'}</p>
+          <button onClick={onCancel} className="btn-cancel">
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   if (!currentExercise) {
     return <div>Loading session...</div>;
   }
@@ -151,8 +175,14 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
     <div className="session-view">
       <div className="session-header">
         <div className="session-info">
-          <h2>{session.name}</h2>
+          <h2>{sessionData.sessionType} Session</h2>
           <p>{client.name} • {new Date().toLocaleDateString()}</p>
+          {sessionData.focusArea && (
+            <p className="focus-area">Focus: {sessionData.focusArea}</p>
+          )}
+          {sessionData.lateMinutes > 0 && (
+            <p className="late-notice">⏰ {sessionData.lateMinutes} min late</p>
+          )}
         </div>
         
         <div className="session-stats">
@@ -195,7 +225,7 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
           >
             ← Previous
           </button>
-          <h3>{currentExercise.title}</h3>
+          <h3>{currentExercise.name || currentExercise.title || 'Exercise'}</h3>
           <button 
             onClick={moveToNextExercise}
             disabled={currentExerciseIndex === sessionData.exercises.length - 1}
@@ -221,8 +251,10 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
                 <th>Target</th>
                 <th>Actual Reps</th>
                 <th>Actual Weight</th>
-                <th>Rest</th>
-                <th>Effort</th>
+                <th>Unit</th>
+                <th>Tempo</th>
+                <th>Equipment Notes</th>
+                <th>Form Notes</th>
                 <th>✓</th>
               </tr>
             </thead>
@@ -250,24 +282,44 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
                     />
                   </td>
                   <td>
-                    <input
-                      type="number"
-                      value={set.actualRest}
-                      onChange={(e) => updateActualSet(index, 'actualRest', parseInt(e.target.value) || 0)}
+                    <select
+                      value={set.weightUnit || 'lb'}
+                      onChange={(e) => updateActualSet(index, 'weightUnit', e.target.value)}
                       className="input-small"
+                    >
+                      <option value="lb">lb</option>
+                      <option value="kg">kg</option>
+                      <option value="bw">BW</option>
+                      <option value="seconds">sec</option>
+                      <option value="meters">m</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={set.tempo || ''}
+                      onChange={(e) => updateActualSet(index, 'tempo', e.target.value)}
+                      className="input-small"
+                      placeholder="3-1-1"
                     />
                   </td>
                   <td>
-                    <select
-                      value={set.actualEffort}
-                      onChange={(e) => updateActualSet(index, 'actualEffort', e.target.value)}
+                    <input
+                      type="text"
+                      value={set.equipmentNotes || ''}
+                      onChange={(e) => updateActualSet(index, 'equipmentNotes', e.target.value)}
                       className="input-small"
-                    >
-                      <option value="Light">Light</option>
-                      <option value="Moderate">Moderate</option>
-                      <option value="Hard">Hard</option>
-                      <option value="Max">Max</option>
-                    </select>
+                      placeholder="Equipment notes"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={set.formNotes || ''}
+                      onChange={(e) => updateActualSet(index, 'formNotes', e.target.value)}
+                      className="input-small"
+                      placeholder="Form feedback"
+                    />
                   </td>
                   <td>
                     <button
@@ -362,288 +414,6 @@ const SessionViewEnhanced = ({ session, client, onSave, onCancel }) => {
           </button>
         </div>
       </div>
-
-      <style jsx>{`
-        .session-view {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-
-        .session-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-          padding: 20px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .session-stats {
-          display: flex;
-          gap: 30px;
-        }
-
-        .stat {
-          text-align: center;
-        }
-
-        .stat-label {
-          display: block;
-          font-size: 12px;
-          color: #666;
-          margin-bottom: 5px;
-        }
-
-        .stat-value {
-          display: block;
-          font-size: 24px;
-          font-weight: bold;
-          color: #333;
-        }
-
-        .progress-bar {
-          height: 8px;
-          background: #e0e0e0;
-          border-radius: 4px;
-          margin-bottom: 20px;
-          overflow: hidden;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: #4caf50;
-          transition: width 0.3s;
-        }
-
-        .rest-timer-alert {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 40px;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-          text-align: center;
-          z-index: 1000;
-        }
-
-        .rest-timer-display {
-          font-size: 48px;
-          font-weight: bold;
-          color: #007bff;
-          margin: 20px 0;
-        }
-
-        .exercise-container {
-          background: white;
-          border-radius: 8px;
-          padding: 20px;
-          margin-bottom: 20px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .exercise-nav {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-
-        .exercise-nav button {
-          background: #f0f0f0;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .exercise-nav button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .exercise-details {
-          margin-bottom: 20px;
-        }
-
-        .exercise-info {
-          color: #666;
-          margin-bottom: 10px;
-        }
-
-        .exercise-notes {
-          background: #fffacd;
-          padding: 10px;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-
-        .sets-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 20px;
-        }
-
-        .sets-table th {
-          background: #f8f9fa;
-          padding: 10px;
-          text-align: left;
-          font-weight: 500;
-        }
-
-        .sets-table td {
-          padding: 10px;
-          border-bottom: 1px solid #e0e0e0;
-        }
-
-        .sets-table tr.completed {
-          background: #e8f5e9;
-        }
-
-        .target {
-          color: #666;
-          font-size: 14px;
-        }
-
-        .input-small {
-          width: 60px;
-          padding: 4px 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-
-        .btn-check {
-          width: 30px;
-          height: 30px;
-          border: 2px solid #ddd;
-          background: white;
-          border-radius: 50%;
-          cursor: pointer;
-          font-size: 16px;
-        }
-
-        .btn-check.checked {
-          background: #4caf50;
-          color: white;
-          border-color: #4caf50;
-        }
-
-        .quick-actions {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 20px;
-        }
-
-        .btn-quick {
-          background: #f0f0f0;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .exercise-feedback {
-          margin-top: 20px;
-        }
-
-        .exercise-feedback label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: 500;
-        }
-
-        .exercise-feedback textarea {
-          width: 100%;
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-
-        .session-footer {
-          background: white;
-          border-radius: 8px;
-          padding: 20px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .client-mood {
-          margin-bottom: 20px;
-        }
-
-        .mood-options {
-          display: flex;
-          gap: 10px;
-          margin-top: 10px;
-        }
-
-        .mood-btn {
-          background: #f0f0f0;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .mood-btn.selected {
-          background: #007bff;
-          color: white;
-        }
-
-        .session-notes {
-          margin-bottom: 20px;
-        }
-
-        .session-notes label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: 500;
-        }
-
-        .session-notes textarea {
-          width: 100%;
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-
-        .session-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 10px;
-        }
-
-        .btn-cancel {
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn-pause {
-          background: #ffc107;
-          color: #333;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn-complete {
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-      `}</style>
     </div>
   );
 };

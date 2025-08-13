@@ -2,7 +2,7 @@
 import React from "react";
 import { Calendar, Users, Dumbbell, History, Database } from "lucide-react";
 
-const Navigation = ({ activeView, setActiveView }) => {
+const Navigation = ({ activeView, setActiveView, onLoadTrainerData }) => {
   const navItems = [
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "clients", label: "Clients", icon: Users },
@@ -15,7 +15,7 @@ const Navigation = ({ activeView, setActiveView }) => {
     <nav className="nav">
       <div className="nav-content">
         <img
-          src="logos/logo-horizontal.png"
+          src="/logos/logo-horizontal.png"
           alt="Workout Tracker Pro"
           className="nav-logo"
         />
@@ -30,6 +30,24 @@ const Navigation = ({ activeView, setActiveView }) => {
               {label}
             </button>
           ))}
+          
+          {onLoadTrainerData && (
+            <button
+              className="trainer-data-btn"
+              onClick={onLoadTrainerData}
+              style={{ 
+                marginLeft: 'auto', 
+                backgroundColor: '#007bff', 
+                color: 'white',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              📋 Load Trainer Data
+            </button>
+          )}
         </div>
       </div>
     </nav>

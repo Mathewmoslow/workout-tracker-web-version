@@ -859,7 +859,7 @@ const EnhancedExerciseSelector = ({
                   const isSelected = exercises.some(ex => selectedForSuperset.includes(ex.workoutExerciseId));
                   
                   return (
-                    <div key={groupId} style={{
+                    <div key={`group-${groupId}`} style={{
                       marginBottom: '10px',
                       padding: '12px',
                       background: isSuperset ? '#e3f2fd' : isSelected ? '#fff3cd' : 'white',
@@ -904,7 +904,7 @@ const EnhancedExerciseSelector = ({
                       )}
                       
                       {exercises.map((exercise, idx) => (
-                        <div key={exercise.workoutExerciseId} style={{
+                        <div key={exercise.workoutExerciseId || `exercise-${idx}-${exercise.id}`} style={{
                           marginBottom: idx < exercises.length - 1 ? '10px' : 0,
                           paddingBottom: idx < exercises.length - 1 ? '10px' : 0,
                           borderBottom: idx < exercises.length - 1 && isSuperset ? '1px solid #e0e0e0' : 'none'
