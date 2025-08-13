@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Cloud, Download, Upload, Trash2, Settings, User, Calendar, Check, AlertCircle, Loader } from 'lucide-react';
+import { Cloud, Download, Upload, Trash2, Settings, User, Calendar, Check, AlertCircle, Loader, Smartphone, Monitor, Sync } from 'lucide-react';
 import backupService from '../utils/backupService';
+import SyncStatus from './SyncStatus';
 
 const BackupManager = ({ isOpen, onClose }) => {
   const [backupStatus, setBackupStatus] = useState(null);
@@ -9,6 +10,7 @@ const BackupManager = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [view, setView] = useState('main'); // 'main', 'list', 'settings'
+  const [showSyncStatus, setShowSyncStatus] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -246,6 +248,13 @@ const BackupManager = ({ isOpen, onClose }) => {
               <Settings size={16} />
               Settings
             </button>
+            <button 
+              className="btn-quick"
+              onClick={() => setShowSyncStatus(true)}
+            >
+              <Sync size={16} />
+              Cross-Platform Sync
+            </button>
           </div>
 
           {/* Main View */}
@@ -273,6 +282,15 @@ const BackupManager = ({ isOpen, onClose }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Calendar size={16} />
                       Last backup: {backupStatus.lastBackupTime ? formatDate(backupStatus.lastBackupTime) : 'Never'}
+                    </div>
+                    {backupStatus.crossPlatformSync && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Smartphone size={14} color="#007AFF" />
+                          <Monitor size={14} color="#8FA68E" />
+                          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Cross-platform sync enabled</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -363,23 +381,39 @@ const BackupManager = ({ isOpen, onClose }) => {
 
               {!loading && backups.length > 0 && (
                 <div>
-                  {backups.map(backup => (
-                    <div key={backup.id} style={{
-                      background: 'var(--bg-primary)',
-                      border: '1px solid var(--border-light)',
-                      borderRadius: '8px',
-                      padding: '16px',
-                      marginBottom: '12px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                        <div>
-                          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                            {backup.name}
+                  {backups.map(backup => {
+                    const getPlatformIcon = (platform) => {
+                      switch (platform) {
+                        case 'iOS':
+                          return <Smartphone size={14} color="#007AFF" />;
+                        case 'Web':
+                          return <Monitor size={14} color="#8FA68E" />;
+                        default:
+                          return <Cloud size={14} />;
+                      }
+                    };
+                    
+                    return (
+                      <div key={backup.id} style={{
+                        background: 'var(--bg-primary)',
+                        border: '1px solid var(--border-light)',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        marginBottom: '12px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                          <div>
+                            <div style={{ fontWeight: 'bold', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {backup.name}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                {getPlatformIcon(backup.platform)}
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{backup.platform}</span>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                              {formatDate(backup.modifiedTime || backup.createdTime)} • {formatFileSize(backup.size)}
+                            </div>
                           </div>
-                          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-                            {formatDate(backup.createdTime)} • {formatFileSize(backup.size)}
-                          </div>
-                        </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button 
                             className="btn-start"
@@ -398,8 +432,9 @@ const BackupManager = ({ isOpen, onClose }) => {
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -437,14 +472,27 @@ const BackupManager = ({ isOpen, onClose }) => {
                 border: '1px solid var(--border-light)',
                 marginTop: '16px'
               }}>
-                <h3 style={{ margin: '0 0 12px 0' }}>About Backups</h3>
+                <h3 style={{ margin: '0 0 12px 0' }}>About Cross-Platform Backups</h3>
                 <ul style={{ fontSize: '14px', color: 'var(--text-secondary)', paddingLeft: '20px' }}>
                   <li>Backups include all clients, sessions, custom workouts, and workout history</li>
-                  <li>Data is stored securely in your personal Google Drive</li>
-                  <li>You can restore from any backup at any time</li>
-                  <li>Manual exports create downloadable JSON files for offline storage</li>
-                  <li>Auto-backups help prevent data loss but won't backup more than once per hour</li>
+                  <li>Data syncs automatically between iOS and Web versions</li>
+                  <li>Backups are stored in your Google Drive's secure app folder</li>
+                  <li>You can restore from any backup created on any platform</li>
+                  <li>Conflicts are resolved using newest-wins strategy</li>
+                  <li>Manual exports create downloadable JSON files compatible with iOS</li>
                 </ul>
+                
+                <div style={{ marginTop: '16px', padding: '12px', background: 'var(--bg-sage-subtle)', borderRadius: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <Smartphone size={16} color="#007AFF" />
+                    <Monitor size={16} color="#8FA68E" />
+                    <strong style={{ fontSize: '14px' }}>Cross-Platform Compatibility</strong>
+                  </div>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
+                    This web app shares data with the iOS WorkoutTrackerPro app using the same Google account.
+                    Create backups on one platform and restore them on another seamlessly.
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -456,6 +504,12 @@ const BackupManager = ({ isOpen, onClose }) => {
           </button>
         </div>
       </div>
+      
+      {/* Sync Status Modal */}
+      <SyncStatus 
+        isOpen={showSyncStatus} 
+        onClose={() => setShowSyncStatus(false)} 
+      />
     </div>
   );
 };

@@ -1,6 +1,11 @@
 // Google Drive API Integration for Workout Tracker Data Backup
+// Cross-platform compatible with iOS WorkoutTrackerPro app
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+// iOS app compatibility constants
+const APP_DATA_FOLDER = 'appDataFolder';
+const BACKUP_PREFIX = 'WorkoutTracker_Backup_';
 
 class GoogleDriveService {
   constructor() {
@@ -97,50 +102,44 @@ class GoogleDriveService {
     };
   }
 
-  // Create a backup folder if it doesn't exist
-  async createBackupFolder() {
-    const folderName = 'Together Fitness Backups';
-    
-    // Check if folder exists
-    const folders = await this.gapi.client.drive.files.list({
-      q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder'`,
-      fields: 'files(id, name)'
-    });
-
-    if (folders.result.files.length > 0) {
-      return folders.result.files[0].id;
-    }
-
-    // Create folder
-    const folder = await this.gapi.client.drive.files.create({
-      resource: {
-        name: folderName,
-        mimeType: 'application/vnd.google-apps.folder'
-      }
-    });
-
-    return folder.result.id;
+  // Use appDataFolder for cross-platform compatibility with iOS
+  async getAppDataFolderId() {
+    // appDataFolder is a special folder that's hidden from users
+    // and shared across platforms using the same OAuth credentials
+    return APP_DATA_FOLDER;
   }
 
-  // Upload backup to Google Drive
+  // Upload backup to Google Drive using iOS-compatible format
   async uploadBackup(data, fileName = null) {
     if (!this.isSignedIn) {
       throw new Error('Not signed in to Google Drive');
     }
 
     try {
-      const folderId = await this.createBackupFolder();
-      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
-      const backupFileName = fileName || `workout-tracker-backup-${timestamp}.json`;
+      const folderId = await this.getAppDataFolderId();
+      const now = new Date();
+      const timestamp = now.toISOString().slice(0, 19).replace(/[T]/g, '_').replace(/[:-]/g, '-');
+      const backupFileName = fileName || `${BACKUP_PREFIX}${timestamp}.json`;
 
-      // Create the backup data
+      // Create iOS-compatible backup data structure
       const backupData = {
-        timestamp: new Date().toISOString(),
-        version: '1.0',
-        data: data
+        // Metadata matching iOS format
+        exportDate: now.toISOString(),
+        appVersion: '2.0.0-web',
+        platform: 'web',
+        
+        // Data structure matching iOS export
+        clients: data.clients || [],
+        workouts: data.customWorkouts || [],
+        sessions: data.sessions || [],
+        exercises: data.customExercises || [],
+        
+        // Web-specific data that iOS can safely ignore
+        workoutHistory: data.workoutHistory || [],
+        settings: data.settings || {}
       };
 
-      // Upload file
+      // Upload file to appDataFolder
       const response = await this.gapi.client.request({
         path: 'https://www.googleapis.com/upload/drive/v3/files',
         method: 'POST',
@@ -160,7 +159,8 @@ class GoogleDriveService {
         success: true,
         fileId: response.result.id,
         fileName: backupFileName,
-        timestamp: new Date().toISOString()
+        timestamp: now.toISOString(),
+        platform: 'web'
       };
     } catch (error) {
       console.error('Failed to upload backup:', error);
@@ -171,34 +171,43 @@ class GoogleDriveService {
     }
   }
 
-  // List available backups
+  // List available backups (includes both iOS and web backups)
   async listBackups() {
     if (!this.isSignedIn) {
       throw new Error('Not signed in to Google Drive');
     }
 
     try {
-      const folderId = await this.createBackupFolder();
-      
+      // Search in appDataFolder for cross-platform compatibility
       const files = await this.gapi.client.drive.files.list({
-        q: `parents='${folderId}' and name contains 'workout-tracker-backup'`,
+        q: `parents in 'appDataFolder' and (name contains '${BACKUP_PREFIX}' or name contains 'workout-tracker-backup')`,
+        spaces: 'appDataFolder',
         orderBy: 'createdTime desc',
-        fields: 'files(id, name, createdTime, size)'
+        fields: 'files(id, name, createdTime, size, modifiedTime)'
       });
 
-      return files.result.files.map(file => ({
-        id: file.id,
-        name: file.name,
-        createdTime: new Date(file.createdTime),
-        size: file.size
-      }));
+      return files.result.files.map(file => {
+        // Determine platform from filename
+        const isIOS = file.name.startsWith(BACKUP_PREFIX);
+        const isWeb = file.name.includes('workout-tracker-backup');
+        
+        return {
+          id: file.id,
+          name: file.name,
+          createdTime: new Date(file.createdTime),
+          modifiedTime: new Date(file.modifiedTime),
+          size: file.size,
+          platform: isIOS ? 'iOS' : (isWeb ? 'Web' : 'Unknown'),
+          isCompatible: isIOS || isWeb
+        };
+      }).filter(file => file.isCompatible);
     } catch (error) {
       console.error('Failed to list backups:', error);
       return [];
     }
   }
 
-  // Download backup from Google Drive
+  // Download backup from Google Drive (handles both iOS and web formats)
   async downloadBackup(fileId) {
     if (!this.isSignedIn) {
       throw new Error('Not signed in to Google Drive');
@@ -210,10 +219,53 @@ class GoogleDriveService {
         alt: 'media'
       });
 
-      return JSON.parse(response.body);
+      const backupData = JSON.parse(response.body);
+      
+      // Normalize data structure for cross-platform compatibility
+      return this.normalizeBackupData(backupData);
     } catch (error) {
       console.error('Failed to download backup:', error);
       throw error;
+    }
+  }
+
+  // Normalize backup data from different platforms
+  normalizeBackupData(backupData) {
+    // Check if this is iOS format (direct structure) or web format (wrapped in 'data')
+    const isIOSFormat = backupData.exportDate && !backupData.data;
+    const isWebFormat = backupData.data && backupData.timestamp;
+    
+    if (isIOSFormat) {
+      // iOS format - return as-is but add metadata wrapper for consistency
+      return {
+        timestamp: backupData.exportDate,
+        version: backupData.appVersion || '2.0.0-ios',
+        platform: 'iOS',
+        data: {
+          clients: backupData.clients || [],
+          customWorkouts: backupData.workouts || [],
+          sessions: backupData.sessions || [],
+          customExercises: backupData.exercises || [],
+          workoutHistory: [], // iOS doesn't have this concept
+          settings: {}
+        },
+        raw: backupData // Keep original data for reference
+      };
+    } else if (isWebFormat) {
+      // Web format - already normalized
+      return {
+        ...backupData,
+        platform: 'Web'
+      };
+    } else {
+      // Unknown format - try to handle gracefully
+      console.warn('Unknown backup format, attempting to parse');
+      return {
+        timestamp: new Date().toISOString(),
+        version: 'unknown',
+        platform: 'Unknown',
+        data: backupData
+      };
     }
   }
 
