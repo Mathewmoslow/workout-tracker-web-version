@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cloud, Download, Upload, Trash2, Settings, User, Calendar, Check, AlertCircle, Loader, Smartphone, Monitor, Sync } from 'lucide-react';
+import { Cloud, Download, Upload, Trash2, Settings, User, Calendar, Check, AlertCircle, Loader, Smartphone, Monitor, RefreshCw } from 'lucide-react';
 import backupService from '../utils/backupService';
 import SyncStatus from './SyncStatus';
 
@@ -252,7 +252,7 @@ const BackupManager = ({ isOpen, onClose }) => {
               className="btn-quick"
               onClick={() => setShowSyncStatus(true)}
             >
-              <Sync size={16} />
+              <RefreshCw size={16} />
               Cross-Platform Sync
             </button>
           </div>
@@ -291,7 +291,7 @@ const BackupManager = ({ isOpen, onClose }) => {
                           <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Cross-platform sync enabled</span>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : (
                   <p>Not connected to Google Drive</p>

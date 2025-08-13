@@ -1,6 +1,6 @@
 // Cross-Platform Sync Status Component
 import React, { useState, useEffect } from 'react';
-import { Cloud, Smartphone, Monitor, Sync, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Cloud, Smartphone, Monitor, RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import backupService from '../utils/backupService';
 
 const SyncStatus = ({ isOpen, onClose }) => {
@@ -94,7 +94,7 @@ const SyncStatus = ({ isOpen, onClose }) => {
         <div className="modal-body">
           {loading ? (
             <div style={{ textAlign: 'center', padding: '40px' }}>
-              <Sync className="spin" size={32} />
+              <RefreshCw className="spin" size={32} />
               <p>Loading sync status...</p>
             </div>
           ) : !syncStatus ? (
@@ -203,7 +203,7 @@ const SyncStatus = ({ isOpen, onClose }) => {
                       className="secondary small"
                       style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
                     >
-                      <Sync size={14} className={syncing ? 'spin' : ''} />
+                      <RefreshCw size={14} className={syncing ? 'spin' : ''} />
                       {syncing ? 'Syncing...' : 'Force Sync'}
                     </button>
                   </div>
