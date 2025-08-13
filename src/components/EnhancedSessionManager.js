@@ -1,6 +1,7 @@
 // src/components/EnhancedSessionManager.js
 import React, { useState } from 'react';
 import { Calendar, Clock, User, Dumbbell, Play, Edit, Copy, Plus, X } from 'lucide-react';
+import EnhancedClientModal from './EnhancedClientModal';
 
 const EnhancedSessionManager = ({ 
   clients = [], 
@@ -9,11 +10,13 @@ const EnhancedSessionManager = ({
   onCreateSession,
   onUpdateSession,
   onStartSession,
-  exerciseDatabase = []
+  exerciseDatabase = [],
+  onAddClient // New prop for adding clients
 }) => {
   const [activeView, setActiveView] = useState('list'); // list, create, edit
   const [selectedSession, setSelectedSession] = useState(null);
   const [showWorkoutSelector, setShowWorkoutSelector] = useState(false);
+  const [showClientModal, setShowClientModal] = useState(false);
   
   // Session form data
   const [sessionForm, setSessionForm] = useState({
@@ -57,6 +60,20 @@ const EnhancedSessionManager = ({
       workouts: [],
       notes: ''
     });
+  };
+
+  // Handle new client creation
+  const handleNewClientSave = (newClient) => {
+    // Add the new client through the parent component
+    if (onAddClient) {
+      onAddClient(newClient);
+    }
+    
+    // Select the new client in the form
+    setSessionForm({ ...sessionForm, clientId: newClient.id || newClient._id });
+    
+    // Close the modal
+    setShowClientModal(false);
   };
 
   const handleTagToggle = (tag) => {
@@ -290,14 +307,23 @@ const EnhancedSessionManager = ({
                 Client *
                 <select
                   value={sessionForm.clientId}
-                  onChange={(e) => setSessionForm({ ...sessionForm, clientId: e.target.value })}
+                  onChange={(e) => {
+                    if (e.target.value === 'ADD_NEW_CLIENT') {
+                      setShowClientModal(true);
+                    } else {
+                      setSessionForm({ ...sessionForm, clientId: e.target.value });
+                    }
+                  }}
                 >
                   <option value="">Select a client...</option>
                   {clients.map(client => (
-                    <option key={client.id} value={client.id}>
+                    <option key={client.id || client._id} value={client.id || client._id}>
                       {client.name}
                     </option>
                   ))}
+                  <option value="ADD_NEW_CLIENT" style={{ backgroundColor: '#f0f8ff', fontWeight: 'bold' }}>
+                    + Add New Client
+                  </option>
                 </select>
               </label>
               
@@ -435,6 +461,16 @@ const EnhancedSessionManager = ({
           exerciseDatabase={exerciseDatabase}
           onSelect={handleAddWorkout}
           onClose={() => setShowWorkoutSelector(false)}
+        />
+      )}
+
+      {/* Client Modal */}
+      {showClientModal && (
+        <EnhancedClientModal
+          isOpen={showClientModal}
+          onClose={() => setShowClientModal(false)}
+          onSave={handleNewClientSave}
+          editingClient={null}
         />
       )}
     </div>

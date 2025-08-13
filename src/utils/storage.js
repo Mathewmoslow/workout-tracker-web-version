@@ -1,6 +1,4 @@
 // Local storage utilities
-import backupService from './backupService';
-
 const STORAGE_KEYS = {
   CLIENTS: 'workout_tracker_clients',
   SESSIONS: 'workout_tracker_sessions',
@@ -13,8 +11,13 @@ let backupTimeout;
 const triggerAutoBackup = () => {
   if (backupTimeout) clearTimeout(backupTimeout);
   backupTimeout = setTimeout(() => {
-    backupService.createAutoBackup().catch(err => {
-      console.log('Auto-backup skipped:', err.message);
+    // Lazy import to avoid circular dependency
+    import('./backupService').then(({ default: backupService }) => {
+      backupService.createAutoBackup().catch(err => {
+        console.log('Auto-backup skipped:', err.message);
+      });
+    }).catch(err => {
+      console.log('Backup service not available:', err.message);
     });
   }, 2000); // Wait 2 seconds before triggering backup
 };

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, Play, User, ChevronLeft, ChevronRight, Activity, Edit2 } from 'lucide-react';
 import './IntegratedDashboard.css';
-import { SessionTypes } from '../types/dataTypes';
 
 const IntegratedDashboard = ({ 
   clients, 
@@ -9,35 +8,22 @@ const IntegratedDashboard = ({
   onStartSession, 
   onCreateSession,
   onUpdateSession,
-  savedWorkouts 
+  savedWorkouts,
+  onOpenSessionManager
 }) => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [showNewSessionForm, setShowNewSessionForm] = useState(false);
-  const [editingSession, setEditingSession] = useState(null);
-  const [sessionForm, setSessionForm] = useState({
-    clientId: '',
-    date: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
-    time: '09:00',
-    workoutId: '',
-    sessionType: SessionTypes.FULL_BODY,
-    focusArea: '',
-    lateMinutes: 0,
-    notes: ''
-  });
 
   // Get week dates
   const getWeekDates = (date) => {
     const week = [];
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day;
-    startOfWeek.setDate(diff);
+    const startDate = new Date(date);
+    startDate.setDate(startDate.getDate() - startDate.getDay());
     
     for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
+      const day = new Date(startDate);
+      day.setDate(startDate.getDate() + i);
       week.push(day);
     }
     return week;
@@ -47,164 +33,70 @@ const IntegratedDashboard = ({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  // Get sessions for a specific date
+  const navigateWeek = (direction) => {
+    const newDate = new Date(currentWeek);
+    newDate.setDate(currentWeek.getDate() + (direction * 7));
+    setCurrentWeek(newDate);
+  };
+
   const getSessionsForDate = (date) => {
-    // Format date locally to avoid timezone issues
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
-    
-    return sessions.filter(s => {
-      const sessionDate = s.date.includes('T') 
-        ? s.date.split('T')[0] 
-        : s.date;
-      return sessionDate === dateStr;
+    return sessions.filter(session => {
+      const sessionDate = session.sessionDate || new Date(session.date);
+      return sessionDate.toDateString() === date.toDateString();
     });
   };
 
-  // Get today's sessions
-  const todaysSessions = getSessionsForDate(new Date());
-  
-  // Get upcoming sessions (next 7 days)
-  const upcomingSessions = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    const daySessions = getSessionsForDate(date);
-    upcomingSessions.push(...daySessions.map(s => ({ ...s, sessionDate: date })));
-  }
-
   const getClientName = (clientId) => {
-    if (!clientId) return 'No Client Selected';
-    // Standardize ID comparison - convert all to strings for consistent comparison
-    const client = clients.find(c => 
-      String(c.id || c._id) === String(clientId)
-    );
-    return client ? client.name : `Unknown (ID: ${clientId})`;
+    const client = clients.find(c => (c.id || c._id) === clientId);
+    return client ? client.name : 'Unknown Client';
   };
 
+  const getTodaysSessions = () => {
+    const today = new Date();
+    return sessions.filter(session => {
+      const sessionDate = session.sessionDate || new Date(session.date);
+      return sessionDate.toDateString() === today.toDateString();
+    });
+  };
+
+  const getUpcomingSessions = () => {
+    const today = new Date();
+    return sessions.filter(session => {
+      const sessionDate = session.sessionDate || new Date(session.date);
+      return sessionDate > today;
+    }).sort((a, b) => {
+      const dateA = a.sessionDate || new Date(a.date);
+      const dateB = b.sessionDate || new Date(b.date);
+      return dateA - dateB;
+    });
+  };
+
+  const todaysSessions = getTodaysSessions();
+  const upcomingSessions = getUpcomingSessions();
+
   const handleQuickStart = (session) => {
-    const client = clients.find(c => 
-      String(c.id || c._id) === String(session.clientId)
-    );
+    const client = clients.find(c => (c.id || c._id) === session.clientId);
     if (client) {
-      // Get the workout if one is assigned
-      let workoutToUse = null;
-      if (session.workoutId && savedWorkouts) {
-        workoutToUse = savedWorkouts.find(w => w.id === session.workoutId);
-      }
+      // Build a workout for the session tracker
+      const workout = {
+        name: session.name || 'Session Workout',
+        exercises: session.workouts?.flatMap(w => w.exercises) || []
+      };
       
-      // Ensure session has proper workout structure
-      // Use assigned workout, or first saved workout, or a quick default
       const sessionWithWorkout = {
         ...session,
-        workouts: workoutToUse 
-          ? [workoutToUse] 
-          : (session.workouts && session.workouts.length > 0) 
-            ? session.workouts
-            : savedWorkouts && savedWorkouts.length > 0
-              ? [savedWorkouts[0]] // Use first saved workout as default
-              : [{ 
-                  exercises: [
-                    {
-                      id: 1,
-                      name: 'Push-ups',
-                      bodyPart: 'Chest',
-                      equipment: 'Bodyweight',
-                      sets: [
-                        { reps: 10, weight: 0, rest: 60, effort: 7 },
-                        { reps: 10, weight: 0, rest: 60, effort: 7 },
-                        { reps: 10, weight: 0, rest: 60, effort: 7 }
-                      ],
-                      notes: 'Maintain proper form throughout'
-                    },
-                    {
-                      id: 2,
-                      name: 'Bodyweight Squats',
-                      bodyPart: 'Legs',
-                      equipment: 'Bodyweight',
-                      sets: [
-                        { reps: 15, weight: 0, rest: 60, effort: 6 },
-                        { reps: 15, weight: 0, rest: 60, effort: 7 },
-                        { reps: 15, weight: 0, rest: 60, effort: 7 }
-                      ],
-                      notes: 'Go to parallel or below'
-                    },
-                    {
-                      id: 3,
-                      name: 'Plank',
-                      bodyPart: 'Core',
-                      equipment: 'Bodyweight',
-                      sets: [
-                        { reps: 30, weight: 0, rest: 45, effort: 7 },
-                        { reps: 30, weight: 0, rest: 45, effort: 8 },
-                        { reps: 30, weight: 0, rest: 45, effort: 8 }
-                      ],
-                      notes: '30 second holds'
-                    }
-                  ],
-                  name: 'Quick Bodyweight Session'
-                }]
+        workout: workout
       };
+      
       onStartSession(sessionWithWorkout, client);
     }
   };
 
   const handleEditSession = (session) => {
-    setEditingSession(session);
-    setSessionForm({
-      clientId: session.clientId,
-      date: session.date,
-      time: session.time,
-      workoutId: session.workoutId || '',
-      sessionType: session.sessionType || SessionTypes.FULL_BODY,
-      focusArea: session.focusArea || '',
-      lateMinutes: session.lateMinutes || 0,
-      notes: session.notes || ''
-    });
-    setShowNewSessionForm(true);
-  };
-
-  const handleSaveSession = () => {
-    const sessionData = {
-      id: editingSession ? editingSession.id : Date.now(),
-      clientId: sessionForm.clientId,
-      clientName: getClientName(sessionForm.clientId),
-      date: sessionForm.date,
-      time: sessionForm.time,
-      workoutId: sessionForm.workoutId,
-      sessionType: sessionForm.sessionType,
-      focusArea: sessionForm.focusArea,
-      lateMinutes: sessionForm.lateMinutes,
-      notes: sessionForm.notes,
-      status: editingSession ? editingSession.status : 'scheduled'
-    };
-    
-    if (editingSession) {
-      onUpdateSession(sessionData);
-    } else {
-      onCreateSession(sessionData);
+    // Open the enhanced session manager for editing
+    if (onOpenSessionManager) {
+      onOpenSessionManager();
     }
-    
-    setShowNewSessionForm(false);
-    setEditingSession(null);
-    setSessionForm({
-      clientId: '',
-      date: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
-      time: '09:00',
-      workoutId: '',
-      sessionType: SessionTypes.FULL_BODY,
-      focusArea: '',
-      lateMinutes: 0,
-      notes: ''
-    });
-  };
-
-  const navigateWeek = (direction) => {
-    const newWeek = new Date(currentWeek);
-    newWeek.setDate(newWeek.getDate() + (direction * 7));
-    setCurrentWeek(newWeek);
   };
 
   return (
@@ -231,30 +123,34 @@ const IntegratedDashboard = ({
                       <User size={16} />
                       {session.clientName || getClientName(session.clientId)}
                     </div>
-                    <span className="session-time">{session.time}</span>
+                    <div className="session-time">
+                      {session.time}
+                    </div>
                   </div>
                   <div className="session-card-body">
-                    {session.workoutName && (
-                      <div className="session-workout">{session.workoutName}</div>
-                    )}
+                    <div className="session-workout">
+                      {session.sessionType || 'General Session'}
+                    </div>
                     {session.notes && (
-                      <div className="session-notes">{session.notes}</div>
+                      <div className="session-notes">
+                        {session.notes}
+                      </div>
                     )}
                   </div>
                   <div className="session-card-actions">
                     <button 
-                      className="btn-edit"
-                      onClick={() => handleEditSession(session)}
-                      title="Edit Session"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button 
                       className="btn-start"
                       onClick={() => handleQuickStart(session)}
                     >
-                      <Play size={16} />
+                      <Play size={14} />
                       Start
+                    </button>
+                    <button 
+                      className="btn-edit"
+                      onClick={() => handleEditSession(session)}
+                    >
+                      <Edit2 size={14} />
+                      Edit
                     </button>
                   </div>
                 </div>
@@ -312,17 +208,10 @@ const IntegratedDashboard = ({
                 className={`client-tile ${selectedClient?.id === client.id ? 'selected' : ''}`}
                 onClick={() => {
                   setSelectedClient(client);
-                  setSessionForm({
-                    clientId: client.id || client._id,
-                    date: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
-                    time: '09:00',
-                    workoutId: '',
-                    sessionType: SessionTypes.FULL_BODY,
-                    focusArea: '',
-                    lateMinutes: 0,
-                    notes: ''
-                  });
-                  setShowNewSessionForm(true);
+                  // Open session manager with this client pre-selected
+                  if (onOpenSessionManager) {
+                    onOpenSessionManager();
+                  }
                 }}
               >
                 <div className="client-avatar">
@@ -337,7 +226,7 @@ const IntegratedDashboard = ({
           <div style={{ textAlign: 'center', marginTop: '32px' }}>
             <button 
               className="btn-primary"
-              onClick={() => setShowNewSessionForm(true)}
+              onClick={() => onOpenSessionManager && onOpenSessionManager()}
               style={{ 
                 fontSize: '16px', 
                 padding: '12px 32px',
@@ -416,124 +305,6 @@ const IntegratedDashboard = ({
         </div>
       </div>
 
-      {/* New Session Modal */}
-      {showNewSessionForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowNewSessionForm(false);
-          setEditingSession(null);
-        }}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h2>{editingSession ? 'Edit Session' : 'Create New Session'}</h2>
-            
-            <div className="form-group">
-              <label>Client</label>
-              <select 
-                value={sessionForm.clientId}
-                onChange={e => setSessionForm({...sessionForm, clientId: e.target.value})}
-              >
-                <option value="">Select a client</option>
-                {clients.map(client => (
-                  <option key={client.id || client._id} value={client.id || client._id}>
-                    {client.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Date</label>
-                <input 
-                  type="date"
-                  value={sessionForm.date}
-                  onChange={e => setSessionForm({...sessionForm, date: e.target.value})}
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Time</label>
-                <input 
-                  type="time"
-                  value={sessionForm.time}
-                  onChange={e => setSessionForm({...sessionForm, time: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Session Type</label>
-                <select 
-                  value={sessionForm.sessionType}
-                  onChange={e => setSessionForm({...sessionForm, sessionType: e.target.value})}
-                >
-                  {Object.values(SessionTypes).map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label>Focus Area</label>
-                <input 
-                  type="text"
-                  value={sessionForm.focusArea}
-                  onChange={e => setSessionForm({...sessionForm, focusArea: e.target.value})}
-                  placeholder="e.g., Lateral, Balance, Upper Body"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Workout Template (Optional)</label>
-              <select 
-                value={sessionForm.workoutId}
-                onChange={e => setSessionForm({...sessionForm, workoutId: e.target.value})}
-              >
-                <option value="">No template</option>
-                {savedWorkouts && savedWorkouts.length > 0 ? (
-                  savedWorkouts.map(workout => (
-                    <option key={workout.id} value={workout.id}>
-                      {workout.name} ({workout.exercises ? workout.exercises.length : 0} exercises)
-                    </option>
-                  ))
-                ) : (
-                  <option value="default">Default Workout Template</option>
-                )}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Notes</label>
-              <textarea 
-                value={sessionForm.notes}
-                onChange={e => setSessionForm({...sessionForm, notes: e.target.value})}
-                placeholder="Session notes..."
-                rows={3}
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button 
-                className="btn-cancel"
-                onClick={() => {
-                  setShowNewSessionForm(false);
-                  setEditingSession(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                className="btn-primary"
-                onClick={handleSaveSession}
-                disabled={!sessionForm.clientId}
-              >
-                {editingSession ? 'Update Session' : 'Create Session'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

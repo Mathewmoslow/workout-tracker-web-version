@@ -97,7 +97,7 @@ const ClientsView = ({
               {client.email && <p>📧 {client.email}</p>}
               {client.phone && <p>📱 {client.phone}</p>}
               {client.experience && <p>🏋️ {client.experience}</p>}
-              {client.goals && <p className="truncate">🎯 {client.goals}</p>}
+              {client.goals && <p className="truncate">🎯 {Array.isArray(client.goals) ? client.goals.map(g => g.target || g.type).join(', ') : client.goals}</p>}
             </div>
           </div>
         ))}

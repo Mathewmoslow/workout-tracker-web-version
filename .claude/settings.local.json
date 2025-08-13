@@ -6,7 +6,8 @@
       "Bash(npm start:*)",
       "Bash(touch:*)",
       "Bash(rm:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

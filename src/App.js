@@ -214,6 +214,7 @@ function App() {
               clients={clients}
               sessions={sessions}
               savedWorkouts={savedWorkouts}
+              onOpenSessionManager={() => setShowSessionManager(true)}
               onStartSession={(session, client) => {
                 // Use the proper handleStartSession logic but with client parameter
                 let workoutForTracker;
@@ -402,6 +403,9 @@ function App() {
               onCreateSession={handleCreateSession}
               onUpdateSession={handleUpdateSession}
               onStartSession={handleStartSession}
+              onAddClient={(newClient) => {
+                setClients([...clients, newClient]);
+              }}
             />
             <button 
               onClick={() => setShowSessionManager(false)}

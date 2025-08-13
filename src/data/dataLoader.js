@@ -62,14 +62,14 @@ export const loadInitialData = () => {
       lastName: client.lastName,
       email: client.email,
       phone: client.phone,
-      dateOfBirth: client.dateOfBirth.toISOString(),
+      dateOfBirth: client.dateOfBirth ? client.dateOfBirth.toISOString().split('T')[0] : '',
       age: client.age,
       gender: client.gender,
       height: client.height,
       weight: client.currentWeight,
       targetWeight: client.targetWeight,
       primaryGoal: client.primaryGoal,
-      secondaryGoals: client.secondaryGoals,
+      secondaryGoals: Array.isArray(client.secondaryGoals) ? client.secondaryGoals.join(', ') : client.secondaryGoals || '',
       
       // Body composition data
       bodyComposition: {
@@ -84,18 +84,18 @@ export const loadInitialData = () => {
         bmiCategory: client.bmiCategory
       },
       
-      // Measurements
-      measurements: client.measurements,
+      // Measurements - convert object to array format expected by UI
+      measurements: Array.isArray(client.measurements) ? client.measurements : [],
       
       // Health information
-      medicalConditions: client.medicalConditions,
+      medicalConditions: Array.isArray(client.medicalConditions) ? client.medicalConditions.join(', ') : client.medicalConditions || '',
       currentMedications: client.currentMedications,
-      allergies: client.allergies,
+      allergies: Array.isArray(client.allergies) ? client.allergies.join(', ') : client.allergies || '',
       injuryHistory: client.injuryHistory,
       painPoints: client.painPoints,
       
       // Training preferences
-      preferredTrainingDays: client.preferredTrainingDays,
+      preferredTrainingDays: Array.isArray(client.preferredTrainingDays) ? client.preferredTrainingDays.join(', ') : client.preferredTrainingDays || '',
       activityLevel: client.activityLevel,
       
       // Lifestyle factors
@@ -113,10 +113,11 @@ export const loadInitialData = () => {
       joinDate: client.joinDate.toISOString(),
       isActive: client.isActive,
       
-      // Goals and tracking
-      goals: client.goals.map(goal => ({
+      // Goals and tracking - convert to string for simple display, keep array for detailed view
+      goals: client.goals.map(goal => (goal.target || goal.type)).join(', '),
+      detailedGoals: client.goals.map(goal => ({
         ...goal,
-        deadline: goal.deadline.toISOString()
+        deadline: goal.deadline.toISOString().split('T')[0]
       })),
       
       // Notes
