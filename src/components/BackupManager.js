@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Cloud, Download, Upload, Trash2, Settings, User, Calendar, Check, AlertCircle, Loader, Smartphone, Monitor, RefreshCw } from 'lucide-react';
 import backupService from '../utils/backupService';
 import SyncStatus from './SyncStatus';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const BackupManager = ({ isOpen, onClose }) => {
   const [backupStatus, setBackupStatus] = useState(null);
@@ -320,15 +321,15 @@ const BackupManager = ({ isOpen, onClose }) => {
                     </button>
                   </>
                 ) : (
-                  <button 
-                    className="btn-primary"
-                    onClick={handleSignIn}
-                    disabled={loading}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                  >
-                    {loading ? <Loader size={16} className="spinner" /> : <Cloud size={16} />}
-                    Sign In to Google Drive
-                  </button>
+                  <GoogleSignInButton
+                    onSuccess={async () => {
+                      setSuccess('Successfully signed in to Google Drive');
+                      await loadBackupStatus();
+                    }}
+                    onError={(error) => {
+                      setError('Sign in failed: ' + error);
+                    }}
+                  />
                 )}
               </div>
 

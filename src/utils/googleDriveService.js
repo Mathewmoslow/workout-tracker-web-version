@@ -117,11 +117,16 @@ class GoogleDriveService {
 
     return new Promise((resolve) => {
       try {
-        // Request an access token
+        // Set up the callback before requesting token
         this.tokenClient.callback = (response) => {
           if (response.error) {
             console.error('Sign in error:', response);
             this.isSignedIn = false;
+            
+            // If it's a popup_closed error, user just closed the window
+            if (response.error === 'popup_closed_by_user') {
+              console.log('User closed the sign-in window');
+            }
             resolve(false);
           } else {
             this.accessToken = response.access_token;
@@ -130,12 +135,18 @@ class GoogleDriveService {
             this.gapi.client.setToken({
               access_token: response.access_token
             });
+            console.log('Successfully signed in to Google Drive');
             resolve(true);
           }
         };
         
-        // Request the access token with simpler configuration
-        this.tokenClient.requestAccessToken({ prompt: '' });
+        // Request the access token
+        // Using empty prompt to avoid issues, will show account chooser if needed
+        this.tokenClient.requestAccessToken({ 
+          prompt: '',
+          // Add a state parameter for security
+          state: 'workout_tracker_' + Date.now()
+        });
       } catch (error) {
         console.error('Failed to sign in to Google:', error);
         resolve(false);
