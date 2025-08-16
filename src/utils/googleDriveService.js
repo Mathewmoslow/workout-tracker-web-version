@@ -54,7 +54,7 @@ class GoogleDriveService {
         clientId: clientId,
         discoveryDocs: [DISCOVERY_DOC],
         scope: SCOPES,
-        plugin_name: 'WorkoutTrackerPro' // Required for new OAuth
+        plugin_name: 'workout-tracker' // Changed to match app name
       });
 
       this.gapi = window.gapi;
