@@ -6,7 +6,7 @@ The Google Drive backup feature requires proper OAuth configuration in Google Cl
 
 ### Current Credentials:
 - **Client ID**: `478540494447-nge845cbrr5cb25iq84h1vda8041lk1f.apps.googleusercontent.com`
-- **API Key**: `AIzaSyBfApU2yHpZkyNkZKFeovExZSiCBiIpqv0`
+- **API Key**: `[REDACTED - Set in environment variables]`
 
 ### Required Google Cloud Console Configuration:
 
