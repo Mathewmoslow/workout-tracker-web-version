@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './theme/dark-theme.css';
+import './styles/mobile-first.css';
 import Navigation from './components/Navigation';
+import MobileNav from './components/MobileNav';
+import BackupManager from './components/BackupManager';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import IntegratedDashboard from './components/IntegratedDashboard';
@@ -201,16 +204,26 @@ function App() {
     setEditingClient(null);
   };
   
+  const [showBackupManager, setShowBackupManager] = useState(false);
+
   return (
     <ThemeProvider>
       <ErrorBoundary>
         <div className="app">
+        {/* Desktop Navigation */}
         <Navigation 
           activeView={activeView} 
           setActiveView={setActiveView}
         />
         
-        <main className="main-content">
+        {/* Mobile Navigation */}
+        <MobileNav
+          activeView={activeView}
+          setActiveView={setActiveView}
+          onBackupClick={() => setShowBackupManager(true)}
+        />
+        
+        <main className="main-content mobile-content">
         {activeView === 'calendar' && (
           <>
             <IntegratedDashboard 
@@ -462,6 +475,14 @@ function App() {
             />
           </div>
         </div>
+      )}
+      
+      {/* Backup Manager Modal */}
+      {showBackupManager && (
+        <BackupManager
+          isOpen={showBackupManager}
+          onClose={() => setShowBackupManager(false)}
+        />
       )}
         </div>
       </ErrorBoundary>
