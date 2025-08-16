@@ -84,8 +84,19 @@ class GoogleDriveService {
           } else {
             this.accessToken = response.access_token;
             this.isSignedIn = true;
+            // Set the access token for API calls
+            this.gapi.client.setToken({
+              access_token: response.access_token
+            });
           }
         },
+        error_callback: (error) => {
+          console.error('OAuth error:', error);
+          this.isSignedIn = false;
+        },
+        // Add these to handle COOP issues
+        ux_mode: 'popup',
+        auto_select: false
       });
 
       this.gapi = window.gapi;
@@ -124,8 +135,11 @@ class GoogleDriveService {
           }
         };
         
-        // Request the access token
-        this.tokenClient.requestAccessToken({ prompt: 'consent' });
+        // Request the access token with better popup handling
+        this.tokenClient.requestAccessToken({ 
+          prompt: 'select_account',
+          hint: '' 
+        });
       } catch (error) {
         console.error('Failed to sign in to Google:', error);
         resolve(false);
@@ -140,9 +154,13 @@ class GoogleDriveService {
     try {
       // Revoke the access token
       if (this.accessToken) {
-        window.google.accounts.oauth2.revoke(this.accessToken, () => {
-          console.log('Access token revoked');
-        });
+        try {
+          window.google.accounts.oauth2.revoke(this.accessToken, () => {
+            console.log('Access token revoked');
+          });
+        } catch (error) {
+          console.log('Error revoking token:', error);
+        }
       }
       this.accessToken = null;
       this.isSignedIn = false;
