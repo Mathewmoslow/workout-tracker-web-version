@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google OAuth Test</title>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <h1>Google OAuth Configuration Test</h1>
+    <button onclick="testAuth()">Test Google Auth</button>
+    <div id="result"></div>
+    
+    <script>
+        const CLIENT_ID = '478540494447-nge845cbrr5cb25iq84h1vda8041lk1f.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyBfApU2yHpZkyNkZKFeovExZSiCBiIpqv0';
+        const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+        
+        function testAuth() {
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    scope: SCOPES,
+                    plugin_name: 'WorkoutTrackerPro'
+                }).then(() => {
+                    document.getElementById('result').innerHTML = 'Initialized successfully!';
+                    return gapi.auth2.getAuthInstance().signIn();
+                }).then((user) => {
+                    document.getElementById('result').innerHTML = 'Signed in as: ' + user.getBasicProfile().getEmail();
+                }).catch((error) => {
+                    document.getElementById('result').innerHTML = 'Error: ' + JSON.stringify(error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

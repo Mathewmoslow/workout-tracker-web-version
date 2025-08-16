@@ -19,35 +19,57 @@ class GoogleDriveService {
     if (this.isInitialized) return true;
 
     try {
-      // Load Google API
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://apis.google.com/js/api.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
+      // Check if Google API script is already loaded
+      if (!window.gapi) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://apis.google.com/js/api.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          
+          // Check if script already exists
+          const existingScript = document.querySelector('script[src="https://apis.google.com/js/api.js"]');
+          if (!existingScript) {
+            document.head.appendChild(script);
+          } else {
+            resolve();
+          }
+        });
+      }
 
       // Initialize Google API
-      await new Promise((resolve) => {
-        window.gapi.load('client:auth2', resolve);
+      await new Promise((resolve, reject) => {
+        window.gapi.load('client:auth2', (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
       });
 
-      // Initialize the API client
+      // Initialize the API client with proper configuration
       await window.gapi.client.init({
         apiKey: apiKey,
         clientId: clientId,
         discoveryDocs: [DISCOVERY_DOC],
-        scope: SCOPES
+        scope: SCOPES,
+        plugin_name: 'WorkoutTrackerPro' // Required for new OAuth
       });
 
       this.gapi = window.gapi;
       this.isInitialized = true;
-      this.isSignedIn = this.gapi.auth2.getAuthInstance().isSignedIn.get();
+      
+      // Check if already signed in
+      const authInstance = this.gapi.auth2.getAuthInstance();
+      if (authInstance) {
+        this.isSignedIn = authInstance.isSignedIn.get();
+      }
 
       return true;
     } catch (error) {
       console.error('Failed to initialize Google Drive API:', error);
+      console.error('Make sure the API key and Client ID are correct and the domain is authorized.');
       return false;
     }
   }
