@@ -361,6 +361,22 @@
     padding: 8px !important;
   }
   
+  .client-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .client-info > div {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  
+  .client-info span:first-child {
+    flex-shrink: 0 !important;
+  }
+  
   /* Workout list mobile */
   .workout-list {
     padding: 8px !important;

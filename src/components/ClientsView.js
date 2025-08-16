@@ -92,12 +92,34 @@ const ClientsView = ({
                 <Trash2 size={16} />
               </button>
             </div>
-            <h3>{client.name}</h3>
-            <div className="client-info">
-              {client.email && <p>📧 {client.email}</p>}
-              {client.phone && <p>📱 {client.phone}</p>}
-              {client.experience && <p>🏋️ {client.experience}</p>}
-              {client.goals && <p className="truncate">🎯 {Array.isArray(client.goals) ? client.goals.map(g => g.target || g.type).join(', ') : client.goals}</p>}
+            <h3 style={{ marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>{client.name}</h3>
+            <div className="client-info" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {client.email && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>📧</span>
+                  <span style={{ wordBreak: 'break-word', fontSize: '14px', color: 'var(--text-secondary)' }}>{client.email}</span>
+                </div>
+              )}
+              {client.phone && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>📱</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{client.phone}</span>
+                </div>
+              )}
+              {client.experience && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>🏋️</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{client.experience}</span>
+                </div>
+              )}
+              {client.goals && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>🎯</span>
+                  <span style={{ fontSize: '14px', color: 'var(--text-secondary)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    {Array.isArray(client.goals) ? client.goals.map(g => g.target || g.type).join(', ') : client.goals}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         ))}
