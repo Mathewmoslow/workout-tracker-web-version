@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple OAuth Test</title>
+    <meta name="google-signin-client_id" content="478540494447-nge845cbrr5cb25iq84h1vda8041lk1f.apps.googleusercontent.com">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <h1>Simple Google OAuth Test</h1>
+    
+    <div id="g_id_onload"
+         data-client_id="478540494447-nge845cbrr5cb25iq84h1vda8041lk1f.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    
+    <div class="g_id_signin" data-type="standard"></div>
+    
+    <div id="result"></div>
+    
+    <script>
+        function handleCredentialResponse(response) {
+            // Decode the JWT token
+            const responsePayload = decodeJwtResponse(response.credential);
+            document.getElementById('result').innerHTML = 
+                '<h2>Success!</h2>' +
+                '<p>Name: ' + responsePayload.name + '</p>' +
+                '<p>Email: ' + responsePayload.email + '</p>';
+        }
+        
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+    </script>
+</body>
+</html>
