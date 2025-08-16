@@ -18,8 +18,9 @@ class GoogleDriveService {
 
   // Initialize Google APIs using the newer Google Identity Services
   async initialize(apiKey, clientId) {
-    // Reset initialization state to force fresh init
-    this.isInitialized = false;
+    if (this.isInitialized) return true;
+    
+    // Reset state for fresh init
     this.tokenClient = null;
     this.accessToken = null;
 
@@ -73,31 +74,29 @@ class GoogleDriveService {
         });
       });
 
-      // Initialize the token client for OAuth 2.0
-      this.tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: SCOPES,
-        callback: (response) => {
-          if (response.error) {
-            console.error('Token error:', response);
-            this.isSignedIn = false;
-          } else {
-            this.accessToken = response.access_token;
-            this.isSignedIn = true;
-            // Set the access token for API calls
-            this.gapi.client.setToken({
-              access_token: response.access_token
-            });
+      // Initialize the token client for OAuth 2.0 with redirect flow as fallback
+      try {
+        this.tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: SCOPES,
+          callback: (response) => {
+            if (response.error) {
+              console.error('Token error:', response);
+              this.isSignedIn = false;
+            } else {
+              this.accessToken = response.access_token;
+              this.isSignedIn = true;
+              // Set the access token for API calls
+              this.gapi.client.setToken({
+                access_token: response.access_token
+              });
+            }
           }
-        },
-        error_callback: (error) => {
-          console.error('OAuth error:', error);
-          this.isSignedIn = false;
-        },
-        // Add these to handle COOP issues
-        ux_mode: 'popup',
-        auto_select: false
-      });
+        });
+      } catch (error) {
+        console.error('Failed to initialize token client:', error);
+        throw error;
+      }
 
       this.gapi = window.gapi;
       this.isInitialized = true;
@@ -135,11 +134,8 @@ class GoogleDriveService {
           }
         };
         
-        // Request the access token with better popup handling
-        this.tokenClient.requestAccessToken({ 
-          prompt: 'select_account',
-          hint: '' 
-        });
+        // Request the access token with simpler configuration
+        this.tokenClient.requestAccessToken({ prompt: '' });
       } catch (error) {
         console.error('Failed to sign in to Google:', error);
         resolve(false);
