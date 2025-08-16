@@ -18,7 +18,10 @@ class GoogleDriveService {
 
   // Initialize Google APIs using the newer Google Identity Services
   async initialize(apiKey, clientId) {
-    if (this.isInitialized) return true;
+    // Reset initialization state to force fresh init
+    this.isInitialized = false;
+    this.tokenClient = null;
+    this.accessToken = null;
 
     try {
       // Load the Google API client library
