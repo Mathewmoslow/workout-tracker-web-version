@@ -1,6 +1,7 @@
 /* Import Brand System */
 @import './theme/brand-colors.css';
 @import './styles/brand-utilities.css';
+@import './styles/mobile-optimizations.css';
 
 /* Reset and base styles */
 * {

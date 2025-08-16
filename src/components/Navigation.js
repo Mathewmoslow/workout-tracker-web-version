@@ -1,10 +1,12 @@
 // src/components/Navigation.js
 import React, { useState } from "react";
-import { Calendar, Users, Dumbbell, History, Database, Cloud } from "lucide-react";
+import { Calendar, Users, Dumbbell, History, Database, Cloud, Sun, Moon } from "lucide-react";
 import BackupManager from "./BackupManager";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Navigation = ({ activeView, setActiveView }) => {
   const [showBackupManager, setShowBackupManager] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const navItems = [
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "clients", label: "Clients", icon: Users },
@@ -39,6 +41,25 @@ const Navigation = ({ activeView, setActiveView }) => {
           >
             <Cloud size={16} style={{ marginRight: "6px" }} />
             Backup
+          </button>
+          <button
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-light)',
+              borderRadius: '8px',
+              padding: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: 'var(--text-primary)',
+              marginLeft: '8px'
+            }}
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
         </div>
       </div>

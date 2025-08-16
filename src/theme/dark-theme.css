@@ -1,0 +1,127 @@
+/* Dark Theme for Together Fitness */
+[data-theme="dark"] {
+  /* Dark mode colors */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --bg-sage-subtle: #1f2a1f;
+  --bg-coral-subtle: #2a1f1f;
+  
+  /* Text colors for dark mode */
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --text-light: #666666;
+  
+  /* Borders for dark mode */
+  --border-light: #3a3a3a;
+  --border-medium: #4a4a4a;
+  --border-sage: #4a5c4a;
+  --border-coral: #5c4a4a;
+  
+  /* Brand colors adjusted for dark mode */
+  --brand-white: #2a2a2a;
+  --brand-cream: #222222;
+  --brand-warm-white: #252525;
+  
+  /* Keep brand colors vibrant but slightly adjusted for dark backgrounds */
+  --brand-sage-primary: #9FB89E;
+  --brand-sage-light: #B4C8B3;
+  --brand-sage-dark: #8AA58A;
+  --brand-sage-muted: #8B9A8A;
+  
+  --brand-coral-primary: #F8ABA0;
+  --brand-coral-light: #FFC5B9;
+  --brand-coral-dark: #EC8A7B;
+  --brand-coral-muted: #F6B3A6;
+  
+  /* Button states for dark mode */
+  --btn-sage-base: var(--brand-sage-primary);
+  --btn-sage-hover: var(--brand-sage-light);
+  --btn-sage-active: #7B957B;
+  --btn-sage-disabled: #5a6a5a;
+  
+  --btn-coral-base: var(--brand-coral-primary);
+  --btn-coral-hover: var(--brand-coral-light);
+  --btn-coral-active: #E1756A;
+  --btn-coral-disabled: #6a5a5a;
+  
+  /* Status colors for dark mode */
+  --success: #5cb85c;
+  --success-light: #6cc96c;
+  --success-dark: #4ca84c;
+  
+  --warning: #f0ad4e;
+  --warning-light: #f5bd6e;
+  --warning-dark: #eb9d3e;
+  
+  --error: #d9534f;
+  --error-light: #e9635f;
+  --error-dark: #c9433f;
+  
+  --info: #5bc0de;
+  --info-light: #6bd0ee;
+  --info-dark: #4bb0ce;
+}
+
+/* Additional dark mode specific styles */
+[data-theme="dark"] .nav {
+  background: linear-gradient(135deg, #2a3a2a, #1a2a1a);
+  border-bottom-color: var(--border-light);
+}
+
+[data-theme="dark"] .modal {
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .session-card,
+[data-theme="dark"] .client-card,
+[data-theme="dark"] .workout-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--bg-primary);
+  border-color: var(--border-light);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  border-color: var(--brand-sage-primary);
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .empty-state {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .alert {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] .alert.success {
+  background: rgba(92, 184, 92, 0.1);
+  border-color: var(--success-dark);
+}
+
+[data-theme="dark"] .alert.error {
+  background: rgba(217, 83, 79, 0.1);
+  border-color: var(--error-dark);
+}
+
+[data-theme="dark"] .btn-primary:not(:disabled):hover {
+  box-shadow: 0 4px 8px rgba(143, 166, 142, 0.2);
+}
+
+[data-theme="dark"] .btn-secondary:not(:disabled):hover {
+  box-shadow: 0 4px 8px rgba(232, 155, 142, 0.2);
+}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import './theme/dark-theme.css';
 import Navigation from './components/Navigation';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import IntegratedDashboard from './components/IntegratedDashboard';
 import ClientDetailView from './components/ClientDetailView';
@@ -200,8 +202,9 @@ function App() {
   };
   
   return (
-    <ErrorBoundary>
-      <div className="app">
+    <ThemeProvider>
+      <ErrorBoundary>
+        <div className="app">
         <Navigation 
           activeView={activeView} 
           setActiveView={setActiveView}
@@ -460,8 +463,9 @@ function App() {
           </div>
         </div>
       )}
-      </div>
-    </ErrorBoundary>
+        </div>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

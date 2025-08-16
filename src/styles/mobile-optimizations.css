@@ -1,0 +1,409 @@
+/* Mobile-First Responsive Optimizations */
+
+/* Touch Target Optimizations */
+@media (pointer: coarse) {
+  /* Minimum 48px touch targets for mobile */
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .icon-btn,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Increase clickable area for small buttons */
+  .icon-btn::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    bottom: -8px;
+    left: -8px;
+  }
+
+  /* Better spacing for touch */
+  .button-group {
+    gap: var(--space-md);
+  }
+
+  .nav-links {
+    gap: var(--space-md);
+  }
+
+  /* Improve form inputs for touch */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  input[type="password"],
+  select,
+  textarea {
+    min-height: 52px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: var(--space-md);
+  }
+
+  /* Larger checkboxes for touch */
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection on UI elements */
+button,
+.nav-links,
+.client-tile,
+.session-card,
+.calendar-day,
+.week-day {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Mobile Breakpoints - Mobile First Approach */
+
+/* Small Mobile (320px - 480px) */
+@media screen and (max-width: 480px) {
+  /* Single column layouts */
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .session-cards,
+  .client-grid,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stack navigation */
+  .nav-content {
+    padding: var(--space-md);
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .nav-links button {
+    width: 100%;
+    justify-content: center;
+    padding: var(--space-md);
+  }
+
+  /* Full-width modals */
+  .modal {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-overlay {
+    padding: 0;
+  }
+
+  /* Optimize cards for mobile */
+  .card {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+
+  /* Simplify tables for mobile */
+  .set-header,
+  .set-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* Main content padding */
+  .main-content,
+  .main-area {
+    padding: var(--space-sm);
+  }
+
+  /* Larger text for readability */
+  body {
+    font-size: 15px;
+  }
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+}
+
+/* Medium Mobile (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  /* Two column grids on larger phones */
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .session-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .client-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Navigation adjustments */
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Modal sizing */
+  .modal {
+    width: 90vw;
+    max-width: 500px;
+  }
+}
+
+/* Tablet (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .session-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .client-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Show calendar sidebar on tablets */
+  .calendar-sidebar {
+    display: block;
+    width: 300px;
+  }
+}
+
+/* Horizontal scroll for wide content */
+.table-container,
+.sets-tracker {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Touch-friendly scrollbars */
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 40px;
+  }
+}
+
+/* Swipeable cards indicator */
+.swipeable {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipeable::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.05));
+  pointer-events: none;
+}
+
+/* Mobile-optimized dropdown menus */
+@media (max-width: 768px) {
+  .action-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-width: 100%;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Better focus states for mobile */
+@media (pointer: coarse) {
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 3px solid var(--brand-sage-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Sticky headers for better mobile navigation */
+@media (max-width: 768px) {
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .dashboard-header {
+    position: sticky;
+    top: 90px;
+    background: var(--bg-primary);
+    z-index: 90;
+    padding: var(--space-md) 0;
+  }
+}
+
+/* Optimize calendar for mobile */
+@media (max-width: 480px) {
+  .calendar-grid {
+    font-size: 12px;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 4px;
+  }
+
+  .day-number {
+    font-size: 12px;
+  }
+
+  .session-indicator {
+    display: none;
+  }
+
+  .calendar-day.has-session::after {
+    content: '•';
+    color: var(--brand-coral-primary);
+    font-size: 20px;
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+  }
+}
+
+/* Loading states for slow connections */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Reduce animations on low-power devices */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  button,
+  .card,
+  .modal {
+    border-width: 2px;
+  }
+
+  .text-muted {
+    color: var(--text-secondary);
+  }
+}
+
+/* Dark mode will be controlled manually via theme toggle */
+/* Removed automatic dark mode to allow user control */
+
+/* Landscape optimizations for mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .nav {
+    padding: var(--space-sm) 0;
+  }
+
+  .nav h1 {
+    font-size: 18px;
+  }
+
+  .modal {
+    max-height: 90vh;
+  }
+
+  .modal-content {
+    max-height: calc(90vh - 100px);
+  }
+}
+
+/* Touch gesture hints */
+.touch-hint {
+  position: relative;
+}
+
+.touch-hint::before {
+  content: attr(data-hint);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.touch-hint:active::before {
+  opacity: 1;
+}
+
+/* Improve readability on small screens */
+@media (max-width: 480px) {
+  p, .session-notes, .form-help {
+    line-height: 1.6;
+  }
+
+  .subtitle, .text-muted {
+    font-size: 13px;
+  }
+}
