@@ -10,16 +10,18 @@ const BACKUP_PREFIX = 'WorkoutTracker_Backup_';
 class GoogleDriveService {
   constructor() {
     this.gapi = null;
+    this.tokenClient = null;
+    this.accessToken = null;
     this.isInitialized = false;
     this.isSignedIn = false;
   }
 
-  // Initialize Google APIs
+  // Initialize Google APIs using the newer Google Identity Services
   async initialize(apiKey, clientId) {
     if (this.isInitialized) return true;
 
     try {
-      // Check if Google API script is already loaded
+      // Load the Google API client library
       if (!window.gapi) {
         await new Promise((resolve, reject) => {
           const script = document.createElement('script');
@@ -27,7 +29,6 @@ class GoogleDriveService {
           script.onload = resolve;
           script.onerror = reject;
           
-          // Check if script already exists
           const existingScript = document.querySelector('script[src="https://apis.google.com/js/api.js"]');
           if (!existingScript) {
             document.head.appendChild(script);
@@ -37,58 +38,96 @@ class GoogleDriveService {
         });
       }
 
-      // Initialize Google API
-      await new Promise((resolve, reject) => {
-        window.gapi.load('client:auth2', (error) => {
-          if (error) {
-            reject(error);
+      // Load the Google Identity Services library
+      if (!window.google?.accounts) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.onload = resolve;
+          script.onerror = reject;
+          
+          const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+          if (!existingScript) {
+            document.head.appendChild(script);
           } else {
             resolve();
           }
         });
+      }
+
+      // Initialize the Google API client
+      await new Promise((resolve, reject) => {
+        window.gapi.load('client', async () => {
+          try {
+            await window.gapi.client.init({
+              apiKey: apiKey,
+              discoveryDocs: [DISCOVERY_DOC]
+            });
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
       });
 
-      // Initialize the API client with proper configuration
-      await window.gapi.client.init({
-        apiKey: apiKey,
-        clientId: clientId,
-        discoveryDocs: [DISCOVERY_DOC],
+      // Initialize the token client for OAuth 2.0
+      this.tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
         scope: SCOPES,
-        plugin_name: 'workout-tracker' // Changed to match app name
+        callback: (response) => {
+          if (response.error) {
+            console.error('Token error:', response);
+            this.isSignedIn = false;
+          } else {
+            this.accessToken = response.access_token;
+            this.isSignedIn = true;
+          }
+        },
       });
 
       this.gapi = window.gapi;
       this.isInitialized = true;
-      
-      // Check if already signed in
-      const authInstance = this.gapi.auth2.getAuthInstance();
-      if (authInstance) {
-        this.isSignedIn = authInstance.isSignedIn.get();
-      }
 
       return true;
     } catch (error) {
       console.error('Failed to initialize Google Drive API:', error);
-      console.error('Make sure the API key and Client ID are correct and the domain is authorized.');
+      console.error('Error details:', error.message || error);
       return false;
     }
   }
 
-  // Sign in to Google
+  // Sign in to Google using the new Identity Services
   async signIn() {
     if (!this.isInitialized) {
       throw new Error('Google Drive API not initialized');
     }
 
-    try {
-      const authInstance = this.gapi.auth2.getAuthInstance();
-      await authInstance.signIn();
-      this.isSignedIn = true;
-      return true;
-    } catch (error) {
-      console.error('Failed to sign in to Google:', error);
-      return false;
-    }
+    return new Promise((resolve) => {
+      try {
+        // Request an access token
+        this.tokenClient.callback = (response) => {
+          if (response.error) {
+            console.error('Sign in error:', response);
+            this.isSignedIn = false;
+            resolve(false);
+          } else {
+            this.accessToken = response.access_token;
+            this.isSignedIn = true;
+            // Set the access token for API calls
+            this.gapi.client.setToken({
+              access_token: response.access_token
+            });
+            resolve(true);
+          }
+        };
+        
+        // Request the access token
+        this.tokenClient.requestAccessToken({ prompt: 'consent' });
+      } catch (error) {
+        console.error('Failed to sign in to Google:', error);
+        resolve(false);
+      }
+    });
   }
 
   // Sign out from Google
@@ -96,9 +135,16 @@ class GoogleDriveService {
     if (!this.isInitialized) return;
 
     try {
-      const authInstance = this.gapi.auth2.getAuthInstance();
-      await authInstance.signOut();
+      // Revoke the access token
+      if (this.accessToken) {
+        window.google.accounts.oauth2.revoke(this.accessToken, () => {
+          console.log('Access token revoked');
+        });
+      }
+      this.accessToken = null;
       this.isSignedIn = false;
+      // Clear the token from the API client
+      this.gapi.client.setToken(null);
     } catch (error) {
       console.error('Failed to sign out:', error);
     }
@@ -110,18 +156,31 @@ class GoogleDriveService {
   }
 
   // Get current user info
-  getCurrentUser() {
-    if (!this.isSignedIn) return null;
+  async getCurrentUser() {
+    if (!this.isSignedIn || !this.accessToken) return null;
     
-    const user = this.gapi.auth2.getAuthInstance().currentUser.get();
-    const profile = user.getBasicProfile();
+    try {
+      // Use the People API to get user info
+      const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const userInfo = await response.json();
+        return {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email,
+          imageUrl: userInfo.picture
+        };
+      }
+    } catch (error) {
+      console.error('Failed to get user info:', error);
+    }
     
-    return {
-      id: profile.getId(),
-      name: profile.getName(),
-      email: profile.getEmail(),
-      imageUrl: profile.getImageUrl()
-    };
+    return null;
   }
 
   // Use appDataFolder for cross-platform compatibility with iOS

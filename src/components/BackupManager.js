@@ -19,7 +19,7 @@ const BackupManager = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const loadBackupStatus = async () => {
-    const status = backupService.getBackupStatus();
+    const status = await backupService.getBackupStatus();
     setBackupStatus(status);
   };
 

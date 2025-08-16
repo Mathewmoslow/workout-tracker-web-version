@@ -471,14 +471,15 @@ export class BackupService {
   }
 
   // Get backup status with sync information
-  getBackupStatus() {
+  async getBackupStatus() {
+    const user = await googleDriveService.getCurrentUser();
     return {
       isInitialized: this.isInitialized,
       isSignedIn: googleDriveService.getSignInStatus(),
       autoBackupEnabled: this.autoBackupEnabled,
       lastBackupTime: this.lastBackupTime,
       lastSyncTime: localStorage.getItem('lastSyncTime'),
-      user: googleDriveService.getCurrentUser(),
+      user: user,
       crossPlatformSync: true,
       supportedPlatforms: ['iOS', 'Web']
     };

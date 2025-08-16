@@ -37,8 +37,8 @@ The Google Drive backup feature requires proper OAuth configuration in Google Cl
      http://localhost:3000
      https://localhost:3000
      https://workout-tracker-ghirtfxo2-mathew-moslows-projects.vercel.app
+     https://workout-tracker-two-theta.vercel.app
      https://workout-tracker.vercel.app
-     https://*.vercel.app
      ```
    - Add Authorized redirect URIs:
      ```
