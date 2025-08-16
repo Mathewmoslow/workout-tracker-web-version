@@ -49,6 +49,12 @@ body {
   height: 45px;
   width: auto;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  transition: filter 0.3s ease;
+}
+
+/* Invert logo colors in dark mode for better visibility */
+[data-theme="dark"] .nav-logo {
+  filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(255,255,255,0.1));
 }
 
 .nav-content {
